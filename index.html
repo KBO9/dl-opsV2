@@ -399,6 +399,26 @@
 
     /* Toast above bottom nav */
     .import-toast { bottom:80px; font-size:13px; padding:12px 20px; max-width:90vw; }
+
+    /* Live widget mobile */
+    .live-widget { padding:8px 10px; margin:0 8px 8px; }
+    .lw-row { gap:8px; }
+    .lw-vol { font-size:13px; }
+    .lw-chrono { font-size:18px; }
+    .lw-sep { height:22px; }
+
+    /* Stats */
+    .stats-grid { grid-template-columns:1fr 1fr; gap:8px; }
+    .stat-val { font-size:22px; }
+
+    /* Quick search */
+    .quick-search-panel { max-height:75vh; }
+    .qs-input { font-size:16px !important; min-height:44px; }
+    .qs-item { padding:12px; }
+    .qs-code { font-size:16px; }
+
+    /* Buttons row mobile */
+    .btn-copy, .btn-next { font-size:12px; padding:12px 16px; min-height:48px; width:100%; text-align:center; border-radius:8px; }
   }
 
   @media(max-width:420px){
@@ -411,6 +431,83 @@
     .causes-table td:nth-child(4),
     .causes-table th:nth-child(4) { display:none; }
   }
+  /* ── CODES DL TAB ── */
+
+  /* ── LIVE WIDGET (top banner) ── */
+  .live-widget {
+    display:none; max-width:960px; margin:0 auto 10px;
+    background:var(--bg2); border:1px solid var(--border); border-radius:6px;
+    padding:10px 14px; transition:all .3s;
+  }
+  .live-widget.active { display:block; }
+  .lw-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .lw-vol { font-family:var(--mono); font-size:16px; font-weight:700; color:var(--accent); letter-spacing:1px; }
+  .lw-chrono { font-family:var(--mono); font-size:22px; font-weight:700; color:var(--text-bright); letter-spacing:2px; }
+  .lw-chrono.alert { color:var(--red); animation:blink .8s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .lw-ttm-bar { flex:1; min-width:100px; height:8px; background:var(--bg3); border-radius:4px; overflow:hidden; border:1px solid var(--border); }
+  .lw-ttm-fill { height:100%; border-radius:4px; transition:width 1s linear; background:linear-gradient(90deg,var(--accent3),var(--accent)); }
+  .lw-ttm-fill.warn { background:linear-gradient(90deg,var(--accent2),var(--red)); }
+  .lw-label { font-family:var(--mono); font-size:9px; color:var(--text-dim); letter-spacing:1px; }
+  .lw-ptd { font-family:var(--mono); font-size:13px; font-weight:700; color:var(--accent2); }
+  .lw-sep { width:1px; height:28px; background:var(--border); flex-shrink:0; }
+
+  /* ── AIRLINE THEME COLORS ── */
+  body.theme-ezy { --accent:#ff6600; --accent-glow:rgba(255,102,0,.15); }
+  body.theme-ezy .app-title span { color:#ff6600; }
+  body.theme-ezy .tab-btn.active { color:#ff6600; border-top-color:#ff6600; }
+  body.theme-ezy .panel:hover { border-color:rgba(255,102,0,.2); }
+  body.theme-ezy .field-sigle { color:#ff6600; }
+  body.theme-ezy .panel-head .title { color:#ff6600; }
+  body.theme-ezy .lw-vol { color:#ff6600; }
+
+  body.theme-vly { --accent:#ffd200; --accent-glow:rgba(255,210,0,.12); }
+  body.theme-vly .app-title span { color:#ffd200; }
+  body.theme-vly .tab-btn.active { color:#ffd200; border-top-color:#ffd200; }
+  body.theme-vly .panel:hover { border-color:rgba(255,210,0,.2); }
+  body.theme-vly .field-sigle { color:#ffd200; }
+  body.theme-vly .panel-head .title { color:#ffd200; }
+  body.theme-vly .lw-vol { color:#ffd200; }
+
+  /* ── COPY BUTTON ── */
+  .btn-fr24 { background:rgba(255,220,50,.1); border:1px solid rgba(255,220,50,.3); color:#ffdc32; font-size:16px; padding:6px 10px; border-radius:6px; cursor:pointer; transition:all .2s; min-width:40px; min-height:40px; display:flex; align-items:center; justify-content:center; }
+  .btn-fr24:hover { background:rgba(255,220,50,.2); box-shadow:0 0 10px rgba(255,220,50,.2); transform:scale(1.05); }
+  .btn-fr24.lw-fr24 { font-size:14px; padding:4px 8px; min-width:32px; min-height:28px; }
+  .btn-copy { background:linear-gradient(135deg,rgba(0,232,122,.12),rgba(0,232,122,.04)); border:1px solid rgba(0,232,122,.35); color:var(--accent3); font-family:var(--mono); font-size:11px; letter-spacing:1px; padding:7px 18px; border-radius:4px; cursor:pointer; transition:all .2s; }
+  .btn-copy:hover { background:rgba(0,232,122,.2); }
+  .btn-next { background:linear-gradient(135deg,rgba(0,200,255,.12),rgba(0,200,255,.04)); border:1px solid rgba(0,200,255,.35); color:var(--accent); font-family:var(--mono); font-size:11px; letter-spacing:1px; padding:7px 18px; border-radius:4px; cursor:pointer; transition:all .2s; }
+  .btn-next:hover { background:rgba(0,200,255,.2); }
+
+  /* ── QUICK SEARCH OVERLAY (code DL from calc) ── */
+  .quick-search-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:150; }
+  .quick-search-overlay.open { display:block; }
+  .quick-search-panel { position:fixed; bottom:0; left:0; right:0; max-height:70vh; background:var(--bg2); border-top:2px solid var(--accent); border-radius:14px 14px 0 0; z-index:151; display:none; flex-direction:column; overflow:hidden; }
+  .quick-search-panel.open { display:flex; }
+  .qs-header { display:flex; align-items:center; gap:8px; padding:12px 16px; border-bottom:1px solid var(--border); }
+  .qs-input { flex:1; background:var(--input-bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:var(--mono); font-size:14px; padding:10px 12px; outline:none; }
+  .qs-input:focus { border-color:var(--accent); }
+  .qs-close { background:none; border:none; color:var(--text-dim); font-size:18px; cursor:pointer; padding:4px 8px; }
+  .qs-results { flex:1; overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:6px; }
+  .qs-item { display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--bg3); border:1px solid var(--border); border-radius:6px; cursor:pointer; transition:all .15s; }
+  .qs-item:active { background:rgba(0,200,255,.1); border-color:var(--accent); }
+  .qs-code { font-family:var(--mono); font-size:18px; font-weight:800; color:var(--accent); min-width:40px; }
+  .qs-desc { font-size:12px; color:var(--text); flex:1; }
+  .qs-add { font-family:var(--mono); font-size:10px; color:var(--accent3); background:rgba(0,232,122,.1); border:1px solid rgba(0,232,122,.3); border-radius:4px; padding:4px 8px; cursor:pointer; white-space:nowrap; }
+
+  /* ── STATS TAB ── */
+  .stats-wrap { max-width:960px; margin:0 auto; }
+  .stats-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; margin-bottom:16px; }
+  .stat-card { background:var(--bg2); border:1px solid var(--border); border-radius:6px; padding:14px; text-align:center; }
+  .stat-val { font-family:var(--mono); font-size:28px; font-weight:700; color:var(--text-bright); }
+  .stat-label { font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:1px; text-transform:uppercase; margin-top:4px; }
+  .stat-section-title { font-family:var(--cond); font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); margin:16px 0 8px; }
+  .cause-rank { display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--bg2); border:1px solid var(--border); border-radius:5px; margin-bottom:6px; }
+  .cause-rank-pos { font-family:var(--mono); font-size:14px; font-weight:700; color:var(--accent); width:24px; text-align:center; }
+  .cause-rank-label { flex:1; font-size:12px; color:var(--text); }
+  .cause-rank-bar { width:80px; height:6px; background:var(--bg3); border-radius:3px; overflow:hidden; }
+  .cause-rank-fill { height:100%; border-radius:3px; background:var(--accent); }
+  .cause-rank-val { font-family:var(--mono); font-size:11px; color:var(--text-dim); width:50px; text-align:right; }
+
   /* ── CODES DL TAB ── */
   .codes-wrap { max-width:960px; margin:0 auto; }
   .codes-toolbar { display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
@@ -474,11 +571,35 @@
 </header>
 <div class="ticker">SYS TIME: <span id="clockVal">--:--:--</span> &nbsp;·&nbsp; SESSION: <span id="sessionInfo">--</span></div>
 
+<!-- LIVE WIDGET -->
+<div class="live-widget" id="live-widget">
+  <div class="lw-row">
+    <span class="lw-vol" id="lw-vol">---</span>
+    <button class="btn-fr24 lw-fr24" onclick="openFR24()" title="FlightRadar24">📡</button>
+    <div class="lw-sep"></div>
+    <div>
+      <div class="lw-label">CHRONO ROTATION</div>
+      <div class="lw-chrono" id="lw-chrono">00:00</div>
+    </div>
+    <div class="lw-sep"></div>
+    <div style="flex:1;min-width:80px">
+      <div class="lw-label">TTM <span id="lw-ttm-txt">--</span> min</div>
+      <div class="lw-ttm-bar"><div class="lw-ttm-fill" id="lw-ttm-fill" style="width:0%"></div></div>
+    </div>
+    <div class="lw-sep"></div>
+    <div>
+      <div class="lw-label">PTD</div>
+      <div class="lw-ptd" id="lw-ptd">--:--</div>
+    </div>
+  </div>
+</div>
+
 <!-- TABS -->
 <div class="tabs" style="max-width:960px;margin:0 auto 0;">
-  <button class="tab-btn active" onclick="switchTab('calc')">⚙️ <span class="tab-label">Calculateur</span></button>
+  <button class="tab-btn active" onclick="switchTab('calc')">⚙️ <span class="tab-label">Calcul</span></button>
   <button class="tab-btn" onclick="switchTab('history')">🗄️ <span class="tab-label">Historique</span></button>
-  <button class="tab-btn" onclick="switchTab('codes')">🔍 <span class="tab-label">Codes DL</span></button>
+  <button class="tab-btn" onclick="switchTab('codes')">🔍 <span class="tab-label">Codes</span></button>
+  <button class="tab-btn" onclick="switchTab('stats')">📊 <span class="tab-label">Stats</span></button>
 </div>
 
 <!-- ══ TAB: CALCULATEUR ══ -->
@@ -502,11 +623,18 @@
     <div class="panel-body">
       <div class="vol-field">
         <label>N° Vol</label>
-        <input type="text" id="vol-num" class="vol-input" placeholder="ex: EJY1234" oninput="autoSave()">
+        <input type="text" id="vol-num" class="vol-input" placeholder="ex: EJU1234" oninput="autoSave()">
       </div>
       <div class="vol-field">
         <label>Date</label>
         <input type="text" id="vol-date" class="vol-input" placeholder="ex: 19/03" style="width:80px;" oninput="autoSave()">
+      </div>
+      <div class="vol-field">
+        <label>Immat</label>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="text" id="vol-immat" class="vol-input" placeholder="ex: OE-IVE" style="width:100px;text-transform:uppercase" maxlength="7" oninput="formatImmat(this);autoSave()">
+          <button class="btn-fr24" id="btn-fr24" onclick="openFR24()" title="Suivre sur FlightRadar24">📡</button>
+        </div>
       </div>
       <div class="param-divider"></div>
       <div class="param-field">
@@ -590,6 +718,7 @@
     <div class="panel-head">
       <span class="icon">📝</span>
       <span class="title">Causes du dépassement</span>
+      <button class="btn-copy" onclick="openQuickSearch()" style="font-size:9px;padding:4px 10px;margin-left:6px">🔍 Code DL</button>
       <div class="remaining-badge" id="remaining-badge" style="margin-left:auto;display:none">
         <span id="remaining-label"></span>
       </div>
@@ -611,8 +740,10 @@
 
 <div class="btns-row">
   <span class="save-flash" id="save-flash">✓ Sauvegardé</span>
-  <button class="btn-save" onclick="saveToHistory()">💾 Enregistrer dans l'historique</button>
-  <button class="btn-reset" onclick="resetAll()">↺ Nouveau vol</button>
+  <button class="btn-copy" onclick="copyDLSummary()">📋 Copier DL</button>
+  <button class="btn-save" onclick="saveToHistory()">💾 Enregistrer</button>
+  <button class="btn-next" onclick="saveAndNext()">➡️ Vol suivant</button>
+  <button class="btn-reset" onclick="resetAll()">↺ Nouveau</button>
 </div>
 </div><!-- end tab-calc -->
 
@@ -714,6 +845,32 @@
 </div>
 </div><!-- end tab-codes -->
 
+<!-- ══ TAB: STATS ══ -->
+<div class="tab-content" id="tab-stats">
+<div class="stats-wrap">
+  <div class="stats-grid" id="stats-grid"></div>
+  <div class="stat-section-title">TOP CAUSES</div>
+  <div id="stats-causes"></div>
+  <div class="stat-section-title" style="margin-top:20px">PAR COMPAGNIE</div>
+  <div class="stats-grid" id="stats-airlines"></div>
+  <div class="empty-state" id="stats-empty" style="display:none">
+    <div style="font-size:32px;margin-bottom:12px">📊</div>
+    Pas encore assez de données.<br>
+    <span style="font-size:10px;margin-top:6px;display:block">Enregistrez quelques rotations pour voir vos statistiques</span>
+  </div>
+</div>
+</div><!-- end tab-stats -->
+
+<!-- ══ QUICK SEARCH OVERLAY (codes DL from calc) ══ -->
+<div class="quick-search-overlay" id="qs-overlay" onclick="closeQuickSearch()"></div>
+<div class="quick-search-panel" id="qs-panel">
+  <div class="qs-header">
+    <input type="text" class="qs-input" id="qs-input" placeholder="Rechercher un code DL…" oninput="quickSearchCodes()">
+    <button class="qs-close" onclick="closeQuickSearch()">✕</button>
+  </div>
+  <div class="qs-results" id="qs-results"></div>
+</div>
+
 <script>
 // ── STORAGE KEYS ──────────────────────────────────────────────────────
 const KEY_CURRENT = 'dl_current';
@@ -749,13 +906,15 @@ function p2(v){ return String(v).padStart(2,'0'); }
 
 // ── TABS ──────────────────────────────────────────────────────────────
 function switchTab(name) {
-  const tabs=['calc','history','codes'];
-  const contents=['tab-calc','tab-history','tab-codes'];
+  const tabs=['calc','history','codes','stats'];
+  const contents=['tab-calc','tab-history','tab-codes','tab-stats'];
   document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active', tabs[i]===name));
   document.querySelectorAll('.tab-content').forEach((c,i)=>c.classList.toggle('active', contents[i]==='tab-'+name));
   if(name==='history') renderHistory();
   if(name==='codes') searchCodes();
+  if(name==='stats') renderStats();
   window.scrollTo({top:0,behavior:'smooth'});
+  currentTab=name;
 }
 
 // ── CODES DL ──────────────────────────────────────────────────────────
@@ -1083,8 +1242,8 @@ document.getElementById('vol-num').addEventListener('input',function(){
 
 // ── PRESETS ───────────────────────────────────────────────────────────
 const PRESETS = {
-  ezy: { name:'EasyJet', ttm:30, marge:4, passNorm:3, doorClose:4, volPrefix:'EJU' },
-  vly: { name:'Vueling', ttm:40, marge:0, passNorm:4, doorClose:5, volPrefix:'VY' },
+  ezy: { name:'EasyJet', ttm:30, marge:4, passNorm:3, doorClose:4, volPrefix:'EJU', immatPrefix:'OE-' },
+  vly: { name:'Vueling', ttm:40, marge:0, passNorm:4, doorClose:5, volPrefix:'VY', immatPrefix:'EC-' },
 };
 let activePreset = null;
 let crewChange = false;
@@ -1121,6 +1280,11 @@ function applyPresetValues(){
   const cur=volEl.value.trim();
   const prefixes=Object.values(PRESETS).map(x=>x.volPrefix);
   if(!cur || prefixes.includes(cur)) volEl.value=p.volPrefix;
+  // Pre-fill immat prefix if empty or just a prefix
+  const immatEl=document.getElementById('vol-immat');
+  const curImmat=immatEl.value.trim();
+  const immatPrefixes=Object.values(PRESETS).map(x=>x.immatPrefix);
+  if(!curImmat || immatPrefixes.includes(curImmat)) immatEl.value=p.immatPrefix;
   autoFillADCT();
   calcAll();
 }
@@ -1131,6 +1295,7 @@ function setPreset(key){
     document.getElementById('ttm').value='';
     document.getElementById('marge').value='';
     document.querySelectorAll('.preset-btn.ezy, .preset-btn.vly').forEach(b=>b.classList.remove('active'));
+    applyTheme();
     // Disable firstwave when no preset
     if(firstwave){ firstwave=false; document.getElementById('btn-fw').classList.remove('active'); document.getElementById('panel-arr').classList.remove('disabled'); }
     document.getElementById('btn-fw').style.opacity='0.3';
@@ -1140,6 +1305,7 @@ function setPreset(key){
   activePreset=key;
   document.querySelectorAll('.preset-btn.ezy, .preset-btn.vly').forEach(b=>b.classList.remove('active'));
   document.getElementById('preset-'+key).classList.add('active');
+  applyTheme();
   // Firstwave available for both EZY and VLY
   document.getElementById('btn-fw').style.opacity = '1';
   document.getElementById('btn-fw').style.pointerEvents = 'auto';
@@ -1347,6 +1513,10 @@ function calcAll(){
     // Store calc state
     lastCalc={dlArr,ptd,dlDep,rep,dlCtotVal,dlPax,clearance,depass};
 
+    // Start chrono when ATA is entered
+    if(ata!==null && !chronoInterval) startChrono();
+    if(ata===null && chronoInterval){clearInterval(chronoInterval);chronoInterval=null;document.getElementById('live-widget').classList.remove('active');}
+
     autoSave();
   } catch(e){console.warn('Calc error:',e);}
 }
@@ -1357,6 +1527,7 @@ async function autoSave(){
     const state={
       volNum:document.getElementById('vol-num').value,
       volDate:document.getElementById('vol-date').value,
+      volImmat:document.getElementById('vol-immat').value,
       ttm:document.getElementById('ttm').value,
       marge:document.getElementById('marge').value,
       ctot:document.getElementById('ctot').value,
@@ -1397,7 +1568,7 @@ async function restoreCurrent(){
   if(!r||!r.value) return;
   try{
     const s=JSON.parse(r.value);
-    const ids={'volNum':'vol-num','volDate':'vol-date','ttm':'ttm','marge':'marge','ctot':'ctot',
+    const ids={'volNum':'vol-num','volDate':'vol-date','volImmat':'vol-immat','ttm':'ttm','marge':'marge','ctot':'ctot',
                 'sta':'sta','ata':'ata','ado':'ado','std':'std','adct':'adct','adc':'adc','atd':'atd'};
     Object.entries(ids).forEach(([k,id])=>{
       const el=document.getElementById(id);
@@ -1438,6 +1609,7 @@ async function saveToHistory(){
       savedAt: new Date().toLocaleString('fr-FR'),
       volNum: document.getElementById('vol-num').value||'–',
       volDate: document.getElementById('vol-date').value||new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}),
+      volImmat: document.getElementById('vol-immat').value||'',
       ttm: document.getElementById('ttm').value,
       marge: document.getElementById('marge').value,
       sta: document.getElementById('sta').value,
@@ -1518,6 +1690,7 @@ async function renderHistory(){
         <div class="vc-header">
           <span class="vc-vol">${e.volNum||'N/A'}</span>
           <span class="vc-date">${e.volDate||'–'}</span>
+          ${e.volImmat?`<span class="vc-ttm">${e.volImmat}</span>`:''}
           <span class="vc-ttm">TTM ${e.ttm||'?'} min</span>
         </div>
         <div class="vc-times">
@@ -1601,6 +1774,7 @@ async function loadEntry(id){
     });
     document.getElementById('vol-num').value=e.volNum||'';
     document.getElementById('vol-date').value=e.volDate||'';
+    document.getElementById('vol-immat').value=e.volImmat||'';
     document.getElementById('ttm').value=e.ttm||'';
     document.getElementById('marge').value=e.marge||'';
 
@@ -1644,6 +1818,7 @@ function resetAll(){
   });
   document.getElementById('vol-num').value='';
   document.getElementById('vol-date').value=getTodayDDMM();
+  document.getElementById('vol-immat').value='';
   document.getElementById('ttm').value='';
   document.getElementById('marge').value='';
   document.querySelectorAll('.cause-label,.cause-min,.cause-iata,.cause-note').forEach(el=>el.value='');
@@ -1656,14 +1831,311 @@ function resetAll(){
   document.getElementById('panel-arr').classList.remove('disabled');
   document.getElementById('btn-fw').style.opacity='0.3';
   document.getElementById('btn-fw').style.pointerEvents='none';
+  applyTheme();
 
-  // Hide computed fields
+  // Hide computed fields & widget
   document.getElementById('field-ptd').style.display='none';
   document.getElementById('field-adct-calc').style.display='none';
+  document.getElementById('live-widget').classList.remove('active');
+  if(chronoInterval){clearInterval(chronoInterval);chronoInterval=null;}
+  ttmAlerted=false;
 
   lastCalc={};
   calcAll();
 }
+
+// ── LIVE CHRONO WIDGET ────────────────────────────────────────────────
+let chronoInterval=null;
+let ttmAlerted=false;
+
+function updateLiveWidget(){
+  const ata=parseTime(document.getElementById('ata').value);
+  const ttm=parseInt(document.getElementById('ttm').value)||null;
+  const widget=document.getElementById('live-widget');
+  const volNum=document.getElementById('vol-num').value||'---';
+  document.getElementById('lw-vol').textContent=volNum;
+
+  // Show immat if available
+  const immat=document.getElementById('vol-immat').value||'';
+
+  if(ata===null){ widget.classList.remove('active'); return; }
+  widget.classList.add('active');
+
+  const now=new Date();
+  const nowMin=now.getHours()*60+now.getMinutes();
+  const elapsed=nowMin-ata;
+  const elSec=(nowMin-ata)*60+(now.getSeconds());
+  const mm=Math.floor(Math.max(0,elSec)/60);
+  const ss=Math.max(0,elSec)%60;
+  const chronoEl=document.getElementById('lw-chrono');
+  chronoEl.textContent=p2(mm)+':'+p2(ss);
+
+  const fillEl=document.getElementById('lw-ttm-fill');
+  document.getElementById('lw-ttm-txt').textContent=ttm||'--';
+  if(ttm){
+    const pct=Math.min(100,(elapsed/ttm)*100);
+    fillEl.style.width=pct+'%';
+    fillEl.classList.toggle('warn',pct>90);
+    chronoEl.classList.toggle('alert',elapsed>=ttm);
+
+    // TTM exceeded → vibrate alert
+    if(elapsed>=ttm && !ttmAlerted){
+      ttmAlerted=true;
+      if(navigator.vibrate) navigator.vibrate([200,100,200,100,400]);
+    }
+  } else {
+    fillEl.style.width='0%';
+    chronoEl.classList.remove('alert');
+  }
+
+  // PTD display
+  const ptdField=document.getElementById('ptd-display');
+  document.getElementById('lw-ptd').textContent=ptdField?ptdField.textContent:'--:--';
+}
+
+function startChrono(){
+  if(chronoInterval) clearInterval(chronoInterval);
+  ttmAlerted=false;
+  chronoInterval=setInterval(updateLiveWidget,1000);
+  updateLiveWidget();
+}
+
+// ── IMMAT AUTO-FORMAT (auto-insert dash after 2 chars) ───────────────
+function formatImmat(el){
+  let v=el.value.toUpperCase().replace(/[^A-Z0-9-]/g,'');
+  // Auto-insert dash after 2 chars if not present
+  if(v.length>2 && !v.includes('-')) v=v.slice(0,2)+'-'+v.slice(2);
+  el.value=v;
+}
+
+// ── FLIGHTRADAR24 TRACKING ────────────────────────────────────────────
+function openFR24(){
+  let immat=document.getElementById('vol-immat').value.trim().toUpperCase();
+  if(!immat){showToast('⚠️ Saisis l\'immatriculation d\'abord');return;}
+  // FR24 format: oe-ive (lowercase, with dash)
+  // If user typed without dash (e.g. OEIVE), insert it after 2 chars
+  let reg=immat;
+  if(!reg.includes('-')&&reg.length>=3) reg=reg.slice(0,2)+'-'+reg.slice(2);
+  window.open('https://www.flightradar24.com/data/aircraft/'+reg.toLowerCase(),'_blank');
+}
+
+// ── AIRLINE THEME ────────────────────────────────────────────────────
+function applyTheme(){
+  document.body.classList.remove('theme-ezy','theme-vly');
+  if(activePreset==='ezy') document.body.classList.add('theme-ezy');
+  else if(activePreset==='vly') document.body.classList.add('theme-vly');
+}
+
+// ── COPY DL SUMMARY (MVT/SI format) ─────────────────────────────────
+function copyDLSummary(){
+  const vol=document.getElementById('vol-num').value||'???';
+  const date=document.getElementById('vol-date').value||'';
+  const sta=document.getElementById('sta').value||'--:--';
+  const ata=document.getElementById('ata').value||'--:--';
+  const std=document.getElementById('std').value||'--:--';
+  const atd=document.getElementById('atd').value||'--:--';
+  const adc=document.getElementById('adc').value||'--:--';
+  const ptdEl=document.getElementById('ptd-display');
+  const ptd=ptdEl?ptdEl.textContent:'--:--';
+
+  const dlArr=lastCalc.dlArr!=null?'+'+lastCalc.dlArr:'0';
+  const dlDep=lastCalc.dlDep!=null?'+'+lastCalc.dlDep:'0';
+  const rep=lastCalc.rep||0;
+  const depass=lastCalc.depass||0;
+
+  let causesText='';
+  document.querySelectorAll('#causes-body tr').forEach(tr=>{
+    const l=tr.querySelector('.cause-label').value;
+    const m=tr.querySelector('.cause-min').value;
+    const c=tr.querySelector('.cause-iata').value;
+    if(l||m) causesText+='\n  DL'+c+' '+l+' '+m+'min';
+  });
+
+  const immat=document.getElementById('vol-immat').value||'';
+
+  const txt=`${vol} ${date}${immat?' '+immat:''}
+STA ${sta} ATA ${ata} DL ARR ${dlArr}min
+STD ${std} PTD ${ptd} ATD ${atd} DL DEP ${dlDep}min
+ADC ${adc}
+REP ${rep}min DEPASS ${depass}min${causesText?'\nCAUSES:'+causesText:''}`;
+
+  navigator.clipboard.writeText(txt).then(()=>{
+    showToast('📋 DL copié dans le presse-papiers');
+  }).catch(()=>{
+    // Fallback for mobile
+    const ta=document.createElement('textarea');ta.value=txt;
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('📋 DL copié');
+  });
+}
+
+// ── SAVE & NEXT ROTATION ─────────────────────────────────────────────
+async function saveAndNext(){
+  await saveToHistory();
+  // Keep preset, crew, firstwave — just clear flight data
+  ['sta','ata','ado','adct','adc','atd','ctot'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.value='';el.classList.remove('error','valid');
+  });
+  document.getElementById('vol-num').value=activePreset?PRESETS[activePreset].volPrefix:'';
+  document.getElementById('vol-date').value=getTodayDDMM();
+  document.getElementById('vol-immat').value=activePreset?PRESETS[activePreset].immatPrefix:'';
+  document.getElementById('std').value='';
+  document.querySelectorAll('.cause-label,.cause-min,.cause-iata,.cause-note').forEach(el=>el.value='');
+  document.getElementById('field-ptd').style.display='none';
+  document.getElementById('field-adct-calc').style.display='none';
+  ttmAlerted=false;
+  lastCalc={};
+  calcAll();
+  showToast('✅ Enregistré → Vol suivant');
+  document.getElementById('vol-num').focus();
+}
+
+// ── QUICK SEARCH (codes DL from calc tab) ────────────────────────────
+let qsCauseTarget=null;
+
+function openQuickSearch(){
+  // Find first empty cause row
+  const rows=document.querySelectorAll('#causes-body tr');
+  qsCauseTarget=null;
+  for(let i=0;i<rows.length;i++){
+    if(!rows[i].querySelector('.cause-label').value){qsCauseTarget=i;break;}
+  }
+  if(qsCauseTarget===null) qsCauseTarget=rows.length-1;
+  document.getElementById('qs-overlay').classList.add('open');
+  document.getElementById('qs-panel').classList.add('open');
+  const inp=document.getElementById('qs-input');
+  inp.value='';inp.focus();
+  document.getElementById('qs-results').innerHTML='<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:12px">Tapez pour rechercher…</div>';
+}
+
+function closeQuickSearch(){
+  document.getElementById('qs-overlay').classList.remove('open');
+  document.getElementById('qs-panel').classList.remove('open');
+}
+
+async function quickSearchCodes(){
+  const q=document.getElementById('qs-input').value.trim();
+  const container=document.getElementById('qs-results');
+  if(!q||q.length<2){container.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:12px">Tapez pour rechercher…</div>';return;}
+
+  const codes=await getCodes();
+  const qn=normSearch(q);
+  const words=qn.split(/\s+/).filter(w=>w.length>1);
+
+  let results=codes.map(c=>{
+    let score=0;
+    const dn=normSearch(c.desc);
+    const nn=c.notes?normSearch(c.notes):'';
+    if(q===c.code) score+=100;
+    for(const kw of (c.keywords||[])){
+      const kwn=normSearch(kw);
+      if(qn.includes(kwn))score+=15;if(kwn.includes(qn))score+=10;
+      for(const w of words){if(kwn.includes(w))score+=5;}
+    }
+    for(const w of words){if(dn.includes(w))score+=8;if(nn.includes(w))score+=6;}
+    if(dn.includes(qn))score+=20;
+    return{...c,_s:score};
+  }).filter(c=>c._s>0).sort((a,b)=>b._s-a._s).slice(0,10);
+
+  if(!results.length){container.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:12px">Aucun résultat</div>';return;}
+
+  container.innerHTML=results.map(c=>`
+    <div class="qs-item" onclick="applyQuickCode('${c.code}','${c.desc.replace(/'/g,"\\'")}')">
+      <span class="qs-code">${c.code}</span>
+      <span class="qs-desc">${c.desc}</span>
+      <span class="qs-add">+ Ajouter</span>
+    </div>
+  `).join('');
+}
+
+function applyQuickCode(code,desc){
+  const rows=document.querySelectorAll('#causes-body tr');
+  const idx=qsCauseTarget||0;
+  if(rows[idx]){
+    rows[idx].querySelector('.cause-iata').value=code;
+    rows[idx].querySelector('.cause-label').value=desc.split(' / ')[0].split(' – ')[0].substring(0,30);
+    rows[idx].querySelector('.cause-min').focus();
+  }
+  closeQuickSearch();
+  calcAll();
+}
+
+// ── STATS ────────────────────────────────────────────────────────────
+async function renderStats(){
+  let history=[];
+  try{const r=await window.storage.get(KEY_HISTORY);if(r&&r.value)history=JSON.parse(r.value);}catch(e){}
+
+  if(history.length<1){document.getElementById('stats-empty').style.display='block';document.getElementById('stats-grid').innerHTML='';document.getElementById('stats-causes').innerHTML='';document.getElementById('stats-airlines').innerHTML='';return;}
+  document.getElementById('stats-empty').style.display='none';
+
+  const total=history.length;
+  const delayed=history.filter(e=>(e.dlDep||0)>0);
+  const avgDep=delayed.length?Math.round(delayed.reduce((s,e)=>s+(e.dlDep||0),0)/delayed.length):0;
+  const avgArr=history.filter(e=>e.dlArr>0).length?Math.round(history.filter(e=>e.dlArr>0).reduce((s,e)=>s+(e.dlArr||0),0)/history.filter(e=>e.dlArr>0).length):0;
+  const onTime=history.filter(e=>(e.dlDep||0)===0).length;
+  const otpPct=Math.round(onTime/total*100);
+  const maxDep=Math.max(...history.map(e=>e.dlDep||0));
+
+  document.getElementById('stats-grid').innerHTML=`
+    <div class="stat-card"><div class="stat-val">${total}</div><div class="stat-label">Rotations</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--accent3)">${otpPct}%</div><div class="stat-label">OTP (On Time)</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--accent2)">${avgDep} min</div><div class="stat-label">Retard moyen départ</div></div>
+    <div class="stat-card"><div class="stat-val">${avgArr} min</div><div class="stat-label">Retard moyen arrivée</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--red)">${maxDep} min</div><div class="stat-label">Pire retard</div></div>
+    <div class="stat-card"><div class="stat-val">${delayed.length}</div><div class="stat-label">Vols en retard</div></div>
+  `;
+
+  // Top causes
+  const causeMap={};
+  history.forEach(e=>(e.causes||[]).forEach(c=>{
+    if(!c.label) return;
+    const key=c.label.toLowerCase().trim();
+    if(!causeMap[key]) causeMap[key]={label:c.label,count:0,totalMin:0};
+    causeMap[key].count++;
+    causeMap[key].totalMin+=parseInt(c.min)||0;
+  }));
+  const topCauses=Object.values(causeMap).sort((a,b)=>b.count-a.count).slice(0,8);
+  const maxCount=topCauses[0]?topCauses[0].count:1;
+
+  document.getElementById('stats-causes').innerHTML=topCauses.length?topCauses.map((c,i)=>`
+    <div class="cause-rank">
+      <span class="cause-rank-pos">${i+1}</span>
+      <span class="cause-rank-label">${c.label}</span>
+      <div class="cause-rank-bar"><div class="cause-rank-fill" style="width:${c.count/maxCount*100}%"></div></div>
+      <span class="cause-rank-val">${c.count}× · ${c.totalMin}min</span>
+    </div>
+  `).join(''):'<div style="color:var(--text-dim);font-size:11px">Aucune cause enregistrée</div>';
+
+  // By airline
+  const ezyFlights=history.filter(e=>(e.volNum||'').startsWith('EJU'));
+  const vlyFlights=history.filter(e=>(e.volNum||'').startsWith('VY'));
+  const ezyAvg=ezyFlights.filter(e=>e.dlDep>0).length?Math.round(ezyFlights.filter(e=>e.dlDep>0).reduce((s,e)=>s+(e.dlDep||0),0)/ezyFlights.filter(e=>e.dlDep>0).length):0;
+  const vlyAvg=vlyFlights.filter(e=>e.dlDep>0).length?Math.round(vlyFlights.filter(e=>e.dlDep>0).reduce((s,e)=>s+(e.dlDep||0),0)/vlyFlights.filter(e=>e.dlDep>0).length):0;
+
+  document.getElementById('stats-airlines').innerHTML=`
+    <div class="stat-card" style="border-color:rgba(255,102,0,.3)"><div class="stat-val" style="color:#ff6600">${ezyFlights.length}</div><div class="stat-label">Vols EJU</div></div>
+    <div class="stat-card" style="border-color:rgba(255,102,0,.3)"><div class="stat-val" style="color:#ff6600">${ezyAvg} min</div><div class="stat-label">Retard moy. EJU</div></div>
+    <div class="stat-card" style="border-color:rgba(255,210,0,.3)"><div class="stat-val" style="color:#ffd200">${vlyFlights.length}</div><div class="stat-label">Vols VY</div></div>
+    <div class="stat-card" style="border-color:rgba(255,210,0,.3)"><div class="stat-val" style="color:#ffd200">${vlyAvg} min</div><div class="stat-label">Retard moy. VY</div></div>
+  `;
+}
+
+// ── SWIPE BETWEEN TABS ───────────────────────────────────────────────
+let currentTab='calc';
+let touchStartX=0, touchStartY=0;
+const TAB_ORDER=['calc','history','codes','stats'];
+
+document.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;},{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-touchStartX;
+  const dy=e.changedTouches[0].clientY-touchStartY;
+  if(Math.abs(dx)<80||Math.abs(dy)>Math.abs(dx)*0.7) return; // too short or too vertical
+  const idx=TAB_ORDER.indexOf(currentTab);
+  if(dx<0 && idx<TAB_ORDER.length-1) switchTab(TAB_ORDER[idx+1]);
+  else if(dx>0 && idx>0) switchTab(TAB_ORDER[idx-1]);
+},{passive:true});
 
 // ── EXPORT/IMPORT ─────────────────────────────────────────────────────
 function showToast(msg){
