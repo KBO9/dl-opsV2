@@ -433,6 +433,58 @@
   }
   /* ── CODES DL TAB ── */
 
+  /* ── TIME CALCULATOR ── */
+  .tc-wrap { max-width:400px; margin:0 auto; }
+  .tc-display {
+    background:#1a1a2e; border:1px solid var(--border); border-radius:10px;
+    padding:20px 20px 16px; margin-bottom:8px; text-align:right;
+    min-height:120px; display:flex; flex-direction:column; justify-content:flex-end;
+  }
+  .tc-history-line { font-family:var(--mono); font-size:14px; color:var(--text-dim); min-height:22px; letter-spacing:1px; }
+  .tc-main-val { font-family:var(--mono); font-size:48px; font-weight:700; color:var(--text-bright); letter-spacing:3px; line-height:1.1; }
+  .tc-history {
+    max-height:180px; overflow-y:auto; margin-bottom:8px;
+    display:flex; flex-direction:column; gap:1px;
+  }
+  .tc-hist-item {
+    background:var(--bg2); border:1px solid var(--border); border-radius:5px;
+    padding:8px 14px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;
+    transition:all .15s;
+  }
+  .tc-hist-item:active { background:var(--bg3); border-color:var(--accent); }
+  .tc-hist-expr { font-family:var(--mono); font-size:12px; color:var(--text-dim); }
+  .tc-hist-result { font-family:var(--mono); font-size:16px; font-weight:700; color:var(--text-bright); }
+  .tc-keypad {
+    display:grid; grid-template-columns:repeat(4,1fr);
+    gap:6px;
+  }
+  .tc-key {
+    font-family:var(--mono); font-size:22px; font-weight:600;
+    padding:18px 0; border:1px solid var(--border); border-radius:8px;
+    background:var(--bg2); color:var(--text-bright); cursor:pointer;
+    transition:all .1s; user-select:none; -webkit-user-select:none;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .tc-key:active { background:var(--bg3); transform:scale(.95); }
+  .tc-key.tc-fn { background:rgba(255,149,0,.12); color:var(--accent2); border-color:rgba(255,149,0,.25); font-size:16px; font-weight:700; }
+  .tc-key.tc-fn:active { background:rgba(255,149,0,.25); }
+  .tc-key.tc-op { background:rgba(0,200,255,.08); color:var(--accent); border-color:rgba(0,200,255,.2); font-size:26px; }
+  .tc-key.tc-op:active { background:rgba(0,200,255,.2); }
+  .tc-key.tc-plus { background:rgba(0,232,122,.1); color:var(--accent3); border-color:rgba(0,232,122,.25); }
+  .tc-key.tc-minus { background:rgba(255,64,87,.08); color:var(--red); border-color:rgba(255,64,87,.2); }
+  .tc-key.tc-eq { background:linear-gradient(135deg,rgba(0,200,255,.2),rgba(0,200,255,.08)); color:var(--accent); border-color:rgba(0,200,255,.4); font-size:28px; font-weight:800; }
+  .tc-key.tc-eq:active { background:rgba(0,200,255,.3); }
+  .tc-key.tc-small { font-size:14px; }
+
+  @media(max-width:768px){
+    .tc-wrap { max-width:100%; padding:0 4px; }
+    .tc-main-val { font-size:42px; }
+    .tc-key { padding:16px 0; font-size:20px; border-radius:6px; min-height:52px; }
+    .tc-key.tc-op { font-size:24px; }
+    .tc-key.tc-eq { font-size:26px; }
+    .tc-key.tc-fn { font-size:15px; }
+  }
+
   /* ── LIVE WIDGET (top banner) ── */
   .live-widget {
     display:none; max-width:960px; margin:0 auto 10px;
@@ -597,6 +649,7 @@
 <!-- TABS -->
 <div class="tabs" style="max-width:960px;margin:0 auto 0;">
   <button class="tab-btn active" onclick="switchTab('calc')">⚙️ <span class="tab-label">Calcul</span></button>
+  <button class="tab-btn" onclick="switchTab('timecalc')">🕐 <span class="tab-label">Temps</span></button>
   <button class="tab-btn" onclick="switchTab('history')">🗄️ <span class="tab-label">Historique</span></button>
   <button class="tab-btn" onclick="switchTab('codes')">🔍 <span class="tab-label">Codes</span></button>
   <button class="tab-btn" onclick="switchTab('stats')">📊 <span class="tab-label">Stats</span></button>
@@ -746,6 +799,42 @@
   <button class="btn-reset" onclick="resetAll()">↺ Nouveau</button>
 </div>
 </div><!-- end tab-calc -->
+
+<!-- ══ TAB: TIME CALCULATOR ══ -->
+<div class="tab-content" id="tab-timecalc">
+<div class="tc-wrap">
+  <!-- Display -->
+  <div class="tc-display">
+    <div class="tc-history-line" id="tc-expr"></div>
+    <div class="tc-main-val" id="tc-display">0:00</div>
+  </div>
+  <!-- History -->
+  <div class="tc-history" id="tc-history"></div>
+  <!-- Keypad -->
+  <div class="tc-keypad">
+    <button class="tc-key tc-fn" onclick="tcAC()">AC</button>
+    <button class="tc-key tc-fn" onclick="tcClear()">C</button>
+    <button class="tc-key tc-fn" onclick="tcBackspace()">⌫</button>
+    <button class="tc-key tc-op" onclick="tcOp('/')">÷</button>
+    <button class="tc-key" onclick="tcDigit('7')">7</button>
+    <button class="tc-key" onclick="tcDigit('8')">8</button>
+    <button class="tc-key" onclick="tcDigit('9')">9</button>
+    <button class="tc-key tc-op" onclick="tcOp('*')">×</button>
+    <button class="tc-key" onclick="tcDigit('4')">4</button>
+    <button class="tc-key" onclick="tcDigit('5')">5</button>
+    <button class="tc-key" onclick="tcDigit('6')">6</button>
+    <button class="tc-key tc-op tc-minus" onclick="tcOp('-')">−</button>
+    <button class="tc-key" onclick="tcDigit('1')">1</button>
+    <button class="tc-key" onclick="tcDigit('2')">2</button>
+    <button class="tc-key" onclick="tcDigit('3')">3</button>
+    <button class="tc-key tc-op tc-plus" onclick="tcOp('+')">+</button>
+    <button class="tc-key" onclick="tcDigit('0')">0</button>
+    <button class="tc-key" onclick="tcDigit('00')">00</button>
+    <button class="tc-key tc-small" onclick="tcDigit('+24')">+24</button>
+    <button class="tc-key tc-eq" onclick="tcEquals()">=</button>
+  </div>
+</div>
+</div><!-- end tab-timecalc -->
 
 <!-- ══ TAB: HISTORIQUE ══ -->
 <div class="tab-content" id="tab-history">
@@ -906,8 +995,8 @@ function p2(v){ return String(v).padStart(2,'0'); }
 
 // ── TABS ──────────────────────────────────────────────────────────────
 function switchTab(name) {
-  const tabs=['calc','history','codes','stats'];
-  const contents=['tab-calc','tab-history','tab-codes','tab-stats'];
+  const tabs=['calc','timecalc','history','codes','stats'];
+  const contents=['tab-calc','tab-timecalc','tab-history','tab-codes','tab-stats'];
   document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active', tabs[i]===name));
   document.querySelectorAll('.tab-content').forEach((c,i)=>c.classList.toggle('active', contents[i]==='tab-'+name));
   if(name==='history') renderHistory();
@@ -2125,7 +2214,7 @@ async function renderStats(){
 // ── SWIPE BETWEEN TABS ───────────────────────────────────────────────
 let currentTab='calc';
 let touchStartX=0, touchStartY=0;
-const TAB_ORDER=['calc','history','codes','stats'];
+const TAB_ORDER=['calc','timecalc','history','codes','stats'];
 
 document.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;},{passive:true});
 document.addEventListener('touchend',e=>{
@@ -2136,6 +2225,168 @@ document.addEventListener('touchend',e=>{
   if(dx<0 && idx<TAB_ORDER.length-1) switchTab(TAB_ORDER[idx+1]);
   else if(dx>0 && idx>0) switchTab(TAB_ORDER[idx-1]);
 },{passive:true});
+
+// ── TIME CALCULATOR ──────────────────────────────────────────────────
+let tcInput='';      // digits being typed
+let tcVal=0;         // current value in minutes
+let tcPendOp=null;   // pending operation
+let tcPendVal=0;     // value before operation
+let tcJustEqualed=false;
+let tcHistList=[];
+
+function tcInputToMin(s){
+  // Convert digit string to minutes: "200" → 2h00 → 120min, "40" → 0h40 → 40min
+  if(!s) return 0;
+  const padded=s.padStart(3,'0');
+  if(padded.length<=3){
+    const h=parseInt(padded.slice(0,-2)||'0',10);
+    const m=parseInt(padded.slice(-2),10);
+    return h*60+m;
+  }
+  const h=parseInt(padded.slice(0,-2),10);
+  const m=parseInt(padded.slice(-2),10);
+  return h*60+m;
+}
+
+function tcFmt(mins){
+  // Format minutes as H:MM
+  const neg=mins<0;
+  const abs=Math.abs(mins);
+  const h=Math.floor(abs/60);
+  const m=abs%60;
+  return (neg?'-':'')+h+':'+p2(m);
+}
+
+function tcUpdateDisplay(){
+  const displayEl=document.getElementById('tc-display');
+  if(tcInput){
+    // Show raw input formatted as time
+    displayEl.textContent=tcFmt(tcInputToMin(tcInput));
+  } else {
+    displayEl.textContent=tcFmt(tcVal);
+  }
+  // Show expression
+  const exprEl=document.getElementById('tc-expr');
+  if(tcPendOp){
+    const opSymbol=tcPendOp==='+'?'+':tcPendOp==='-'?'−':tcPendOp==='*'?'×':'÷';
+    exprEl.textContent=tcFmt(tcPendVal)+' '+opSymbol;
+  } else {
+    exprEl.textContent='';
+  }
+}
+
+function tcDigit(d){
+  if(tcJustEqualed){tcInput='';tcJustEqualed=false;}
+  if(d==='+24'){
+    // Add 24 hours to current display
+    if(tcInput) tcVal=tcInputToMin(tcInput);
+    tcVal+=24*60;
+    tcInput='';
+    tcUpdateDisplay();
+    return;
+  }
+  if(tcInput.length>=4 && d!=='00') return; // max 4 digits (HH:MM)
+  tcInput+=d;
+  if(tcInput.length>4) tcInput=tcInput.slice(0,4);
+  tcUpdateDisplay();
+}
+
+function tcOp(op){
+  if(tcInput){
+    const inputVal=tcInputToMin(tcInput);
+    if(tcPendOp){
+      tcPendVal=tcCalc(tcPendVal,inputVal,tcPendOp);
+    } else {
+      tcPendVal=inputVal;
+    }
+    tcVal=tcPendVal;
+    tcInput='';
+  } else if(!tcPendOp){
+    tcPendVal=tcVal;
+  }
+  tcPendOp=op;
+  tcJustEqualed=false;
+  tcUpdateDisplay();
+}
+
+function tcCalc(a,b,op){
+  switch(op){
+    case '+': return a+b;
+    case '-': return a-b;
+    case '*': return Math.round(a*b/60); // multiply hours
+    case '/': return b?Math.round(a/b*60):0;
+    default: return b;
+  }
+}
+
+function tcEquals(){
+  if(!tcPendOp) return;
+  const b=tcInput?tcInputToMin(tcInput):0;
+  const a=tcPendVal;
+  const result=tcCalc(a,b,tcPendOp);
+
+  // Build expression string
+  const opSymbol=tcPendOp==='+'?'+':tcPendOp==='-'?'–':tcPendOp==='*'?'×':'÷';
+  const expr=tcFmt(a)+' '+opSymbol+' '+tcFmt(b);
+
+  // Add to history
+  tcHistList.unshift({expr, result:tcFmt(result)});
+  if(tcHistList.length>20) tcHistList.pop();
+  tcRenderHistory();
+
+  tcVal=result;
+  tcInput='';
+  tcPendOp=null;
+  tcPendVal=0;
+  tcJustEqualed=true;
+  tcUpdateDisplay();
+}
+
+function tcClear(){
+  if(tcInput){ tcInput=''; }
+  else { tcVal=0; }
+  tcUpdateDisplay();
+}
+
+function tcAC(){
+  tcInput=''; tcVal=0; tcPendOp=null; tcPendVal=0; tcJustEqualed=false;
+  tcUpdateDisplay();
+}
+
+function tcBackspace(){
+  if(tcInput.length>0){
+    tcInput=tcInput.slice(0,-1);
+  } else {
+    tcVal=0;
+  }
+  tcUpdateDisplay();
+}
+
+function tcRenderHistory(){
+  const container=document.getElementById('tc-history');
+  container.innerHTML=tcHistList.map((h,i)=>`
+    <div class="tc-hist-item" onclick="tcLoadHist(${i})">
+      <span class="tc-hist-expr">${h.expr}</span>
+      <span class="tc-hist-result">= ${h.result}</span>
+    </div>
+  `).join('');
+}
+
+function tcLoadHist(i){
+  const h=tcHistList[i];
+  if(!h) return;
+  // Parse result back to minutes
+  const parts=h.result.match(/^(-?)(\d+):(\d{2})$/);
+  if(parts){
+    const neg=parts[1]==='-';
+    tcVal=(parseInt(parts[2],10)*60+parseInt(parts[3],10))*(neg?-1:1);
+    tcInput='';
+    tcPendOp=null;
+    tcPendVal=0;
+    tcJustEqualed=true;
+    tcUpdateDisplay();
+  }
+}
 
 // ── EXPORT/IMPORT ─────────────────────────────────────────────────────
 function showToast(msg){
