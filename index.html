@@ -1601,9 +1601,27 @@ function calcAll(){
 
     // Décomposition
     let rep=0, dlCtotVal=0, depass=0, clearance=0, dlPax=0;
-    if(ptd!==null&&std!==null) rep=Math.max(0,ptd-std);
+    let repAbsorbed=false;
+
+    if(sta!==null&&ata!==null&&std!==null&&atd!==null){
+      const dlArr=Math.max(0,ata-sta);
+      if(atd<=std){
+        // Départ à l'heure ou en avance → DL93 absorbé = retard arrivée complet
+        rep=dlArr;
+        repAbsorbed=true;
+      } else {
+        // Départ en retard → DL93 = portion du retard départ causée par l'entrant
+        // Plafonnée au retard départ réel
+        const ptdDelay=ptd!==null?Math.max(0,ptd-std):0;
+        rep=Math.min(dlDep, ptdDelay);
+      }
+    } else if(ptd!==null&&std!==null){
+      // Fallback sans ATD : ancienne logique
+      rep=Math.max(0,ptd-std);
+    }
+
     if(ctot!==null&&ptd!==null) dlCtotVal=Math.max(0,ctot-ptd);
-    if(atd!==null&&ptd!==null){
+    if(atd!==null&&ptd!==null&&!repAbsorbed){
       const ref=ctot!==null?Math.max(ptd,ctot):ptd;
       depass=Math.max(0,atd-ref);
     }
@@ -1614,15 +1632,13 @@ function calcAll(){
       depass=Math.max(0,depass-dlPax);
     }
     // Clearance = ATD – (ADC + marge)
-    // EZY : la marge (4 min) représente déjà le temps d'installation après fermeture porte
-    // VLY : marge = 0, tout après ADC est clearance
-    if(atd!==null&&adc!==null&&marge!==null){
+    if(atd!==null&&adc!==null&&marge!==null&&!repAbsorbed){
       const departAttendu=adc+marge;
       clearance=Math.max(0,atd-departAttendu);
       depass=Math.max(0,depass-clearance);
     }
     const mx=Math.max(rep,dlCtotVal,dlPax,clearance,depass,1);
-    document.getElementById('val-rep').textContent=rep>0?'+'+rep+' min':'0 min';
+    document.getElementById('val-rep').textContent=rep>0?(repAbsorbed?'+'+rep+' (abs)':'+'+rep+' min'):'0 min';
     document.getElementById('val-ctot').textContent=dlCtotVal>0?'+'+dlCtotVal+' min':'0 min';
     document.getElementById('val-pax').textContent=dlPax>0?'+'+dlPax+' min':'0 min';
     document.getElementById('val-clearance').textContent=clearance>0?'+'+clearance+' min':'0 min';
