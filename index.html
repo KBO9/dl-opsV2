@@ -161,8 +161,8 @@
   .computed-value { font-family:var(--mono); font-size:18px; font-weight:700; color:var(--accent2); letter-spacing:1px; }
 
   /* ── FIRSTWAVE: grey out arrival panel ── */
-  #panel-arr.disabled { opacity:0.3; pointer-events:none; filter:grayscale(1); transition:all .3s; }
-  #panel-arr { transition:all .3s; }
+  #panel-arr.disabled, #panel-dep.disabled { opacity:0.3; pointer-events:none; filter:grayscale(1); transition:all .3s; }
+  #panel-arr, #panel-dep { transition:all .3s; }
 
   /* ── QUICK CALL CONTACTS ── */
   .contacts-bar { display:flex; gap:6px; max-width:960px; margin:0 auto 8px; padding:0; align-items:center; }
@@ -441,7 +441,7 @@
     .qs-code { font-size:16px; }
 
     /* Buttons row mobile */
-    .btn-copy, .btn-next, .btn-wa { font-size:12px; padding:12px 16px; min-height:48px; width:100%; text-align:center; border-radius:var(--radius-sm); }
+    .btn-copy { font-size:12px; padding:12px 16px; min-height:48px; width:100%; text-align:center; border-radius:var(--radius-sm); }
   }
 
   @media(max-width:420px){
@@ -550,10 +550,6 @@
   .btn-fr24.lw-fr24 { font-size:14px; padding:4px 8px; min-width:32px; min-height:28px; }
   .btn-copy { background:rgba(16,185,129,.04); border:1px solid rgba(16,185,129,.2); color:var(--accent3); font-family:var(--mono); font-size:11px; letter-spacing:1px; padding:8px 18px; border-radius:var(--radius-sm); cursor:pointer; transition:all .2s; }
   .btn-copy:hover { background:rgba(16,185,129,.1); }
-  .btn-wa { background:rgba(37,180,80,.04); border:1px solid rgba(37,180,80,.2); color:#16a34a; font-family:var(--mono); font-size:11px; letter-spacing:1px; padding:8px 18px; border-radius:var(--radius-sm); cursor:pointer; transition:all .2s; }
-  .btn-wa:hover { background:rgba(37,180,80,.1); }
-  .btn-next { background:rgba(59,130,246,.06); border:1px solid rgba(59,130,246,.25); color:var(--accent); font-family:var(--mono); font-size:11px; letter-spacing:1px; padding:8px 18px; border-radius:var(--radius-sm); cursor:pointer; transition:all .2s; }
-  .btn-next:hover { background:rgba(59,130,246,.12); }
 
   /* ── QUICK SEARCH OVERLAY (code DL from calc) ── */
   .quick-search-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.3); z-index:150; }
@@ -701,23 +697,21 @@
 <div class="tabs" style="max-width:960px;margin:0 auto 0;">
   <button class="tab-btn active" onclick="switchTab('calc')">⚙️ <span class="tab-label">Calcul</span></button>
   <button class="tab-btn" onclick="switchTab('timecalc')">🕐 <span class="tab-label">Temps</span></button>
-  <button class="tab-btn" onclick="switchTab('codes')">🔍 <span class="tab-label">Codes</span></button>
+  <button class="tab-btn" onclick="switchTab('contacts')">📞 <span class="tab-label">Contacts</span></button>
   <button class="tab-btn" onclick="switchTab('history')">🗄️ <span class="tab-label">Hist.</span></button>
 </div>
 
 <!-- ══ TAB: CALCULATEUR ══ -->
 <div class="tab-content active" id="tab-calc">
 
-  <!-- QUICK CALL CONTACTS -->
+  <!-- QUICK CONTACTS -->
   <div class="contacts-bar">
-    <button class="contact-btn ezy-contact" id="contact-ezy" onclick="callContact('ezy')" oncontextmenu="event.preventDefault();editContact('ezy')">
-      <span class="contact-icon">📞</span>
-      <span class="contact-name" id="contact-ezy-name">OCC EasyJet</span>
+    <button onclick="switchTab('contacts')" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:600;min-height:40px;background:rgba(59,130,246,.04);border:1px solid rgba(59,130,246,.2);color:var(--accent);-webkit-tap-highlight-color:transparent">
+      <span style="font-size:16px">📇</span>
+      <span>Contacts</span>
     </button>
-    <button class="contact-btn vly-contact" id="contact-vly" onclick="callContact('vly')" oncontextmenu="event.preventDefault();editContact('vly')">
-      <span class="contact-icon">📞</span>
-      <span class="contact-name" id="contact-vly-name">OCC Vueling</span>
-    </button>
+    <button class="preset-btn fw" id="btn-fw" onclick="toggleFirstwave()" style="font-size:11px;padding:6px 10px">🌅 First</button>
+    <button class="preset-btn fw" id="btn-lw" onclick="toggleLastwave()" style="font-size:11px;padding:6px 10px">🌙 Last</button>
   </div>
 
   <!-- PRESET BUTTONS -->
@@ -727,7 +721,12 @@
     <button class="preset-btn vly" id="preset-vly" onclick="setPreset('vly')">VLY</button>
     <div class="preset-divider"></div>
     <button class="preset-btn crew" id="btn-crew" onclick="toggleCrew()">👨‍✈️ Crew</button>
-    <button class="preset-btn fw" id="btn-fw" onclick="toggleFirstwave()">🌅 Firstwave</button>
+  </div>
+
+  <!-- AIRCRAFT TYPE -->
+  <div class="presets-bar" id="actype-bar" style="display:none">
+    <span class="presets-label">TYPE</span>
+    <div id="actype-buttons" style="display:flex;gap:6px;flex-wrap:wrap"></div>
   </div>
 
 <div class="main-grid">
@@ -785,7 +784,7 @@
   </div>
 
   <!-- DÉPART -->
-  <div class="panel">
+  <div class="panel" id="panel-dep">
     <div class="panel-head"><span class="icon">🛫</span><span class="title">Départ</span></div>
     <div class="panel-body">
       <div class="field"><span class="field-sigle">STD</span><span class="field-label">Standard</span><input type="text" id="std" placeholder="--:--" maxlength="5" inputmode="numeric"></div>
@@ -848,22 +847,12 @@
       </div>
     </div>
   </div>
-  <!-- NOTES VOL -->
-  <div class="panel" style="grid-column:1/-1">
-    <div class="panel-head"><span class="icon">📝</span><span class="title">Notes vol</span></div>
-    <div class="panel-body">
-      <textarea id="vol-notes" placeholder="Notes libres pour ce vol…" style="width:100%;min-height:50px;background:var(--input-bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--mono);font-size:12px;padding:8px 10px;outline:none;resize:vertical" oninput="autoSave()"></textarea>
-    </div>
-  </div>
 
 </div>
 
 <div class="btns-row">
   <span class="save-flash" id="save-flash">✓ Sauvegardé</span>
-  <button class="btn-copy" onclick="copyDLSummary()">📋 Copier</button>
-  <button class="btn-wa" onclick="shareDLWhatsApp()">💬 WhatsApp</button>
   <button class="btn-save" onclick="saveToHistory()">💾 Enregistrer</button>
-  <button class="btn-next" onclick="saveAndNext()">➡️ Suivant</button>
   <button class="btn-reset" onclick="resetAll()">↺ Nouveau</button>
 </div>
 </div><!-- end tab-calc -->
@@ -931,77 +920,50 @@
 </div>
 </div><!-- end tab-history -->
 
-<!-- ══ TAB: CODES DL ══ -->
-<div class="tab-content" id="tab-codes">
-<div class="codes-wrap">
 
-  <div class="codes-toolbar">
-    <div class="codes-search-wrap">
-      <span class="codes-search-icon">🔍</span>
-      <input type="text" id="codes-search" class="codes-search" placeholder="Ex: panne, pushback, crew retard, dégivrage, PMR, baggage system…" oninput="searchCodes()">
-      <button class="codes-clear-btn" id="codes-clear-btn" onclick="clearCodesSearch()" style="display:none">✕</button>
-    </div>
-    <div class="codes-filter-btns">
-      <button class="codes-filter active" id="filter-all" onclick="filterCompany('all')">Tous</button>
-      <button class="codes-filter ezy" id="filter-ezy" onclick="filterCompany('ezy')">EZY</button>
-      <button class="codes-filter vly" id="filter-vly" onclick="filterCompany('vly')">VLY</button>
-    </div>
-    <button class="btn-add-code" onclick="openAddCode()">＋ Ajouter un code</button>
+<!-- ══ TAB: CONTACTS ══ -->
+<div class="tab-content" id="tab-contacts">
+<div style="max-width:960px;margin:0 auto">
+
+  <!-- Filter buttons -->
+  <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+    <button class="crew-cat-btn active" id="ct-filter-all" onclick="filterContacts('all')">Tous</button>
+    <button class="crew-cat-btn" id="ct-filter-ezy" onclick="filterContacts('ezy')" style="border-color:rgba(234,88,12,.3)">EZY</button>
+    <button class="crew-cat-btn" id="ct-filter-vly" onclick="filterContacts('vly')" style="border-color:rgba(202,138,4,.3)">VLY</button>
+    <button class="btn-add-code" onclick="openAddContact()" style="margin-left:auto">＋ Ajouter</button>
   </div>
 
-  <div id="codes-results"></div>
-  <div class="empty-state" id="codes-empty" style="display:none">
-    <div style="font-size:32px;margin-bottom:12px">🔍</div>
-    Aucun résultat.<br>
-    <span style="font-size:10px;margin-top:6px;display:block">Essayez d'autres mots-clés</span>
-  </div>
-  <div class="codes-placeholder" id="codes-placeholder">
-    <div style="font-size:32px;margin-bottom:12px">📋</div>
-    Commencez à taper pour rechercher un code DL (FR ou EN)<br>
-    <span style="font-size:10px;margin-top:6px;display:block">Ex: panne, pushback, crew retard, passerelle, PMR, dégivrage, baggage system...</span>
-  </div>
+  <!-- Contact list -->
+  <div id="contacts-list"></div>
 
-  <!-- ADD CODE MODAL -->
-  <div class="modal-overlay" id="modal-overlay" onclick="closeAddCode()"></div>
-  <div class="modal" id="modal-add">
+  <!-- Add contact modal -->
+  <div class="modal-overlay" id="ct-modal-overlay" onclick="closeAddContact()"></div>
+  <div class="modal" id="ct-modal">
     <div class="modal-head">
-      <span id="modal-title">Ajouter un code DL</span>
-      <button onclick="closeAddCode()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px">✕</button>
+      <span id="ct-modal-title">Ajouter un contact</span>
+      <button onclick="closeAddContact()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px">✕</button>
     </div>
     <div class="modal-body">
-      <div class="modal-field">
-        <label>Code DL</label>
-        <input type="text" id="new-code" placeholder="ex: 93" maxlength="6">
-      </div>
-      <div class="modal-field">
-        <label>Description</label>
-        <input type="text" id="new-desc" placeholder="ex: Retard passager">
-      </div>
-      <div class="modal-field">
-        <label>Mots-clés (séparés par des virgules)</label>
-        <input type="text" id="new-keywords" placeholder="ex: passager, embarquement, pax">
-      </div>
+      <div class="modal-field"><label>Catégorie</label><input type="text" id="ct-new-cat" placeholder="ex: Pétrolier, Ménage…"></div>
+      <div class="modal-field"><label>Société</label><input type="text" id="ct-new-company" placeholder="ex: SASCA"></div>
+      <div class="modal-field"><label>Poste / Fonction</label><input type="text" id="ct-new-role" placeholder="ex: Régulation"></div>
+      <div class="modal-field"><label>Téléphone</label><input type="text" id="ct-new-phone" placeholder="+33 ..." inputmode="tel"></div>
       <div class="modal-field">
         <label>Compagnie</label>
         <div style="display:flex;gap:8px;margin-top:4px">
-          <label class="modal-check"><input type="checkbox" id="new-ezy" checked> EZY</label>
-          <label class="modal-check"><input type="checkbox" id="new-vly"> VLY</label>
+          <label class="modal-check"><input type="checkbox" id="ct-new-ezy" checked> EZY</label>
+          <label class="modal-check"><input type="checkbox" id="ct-new-vly"> VLY</label>
         </div>
-      </div>
-      <div class="modal-field">
-        <label>Notes (optionnel)</label>
-        <input type="text" id="new-notes" placeholder="Notes complémentaires…">
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-reset" onclick="closeAddCode()">Annuler</button>
-      <button class="btn-save" onclick="saveCode()" id="modal-save-btn">Enregistrer</button>
+      <button class="btn-reset" onclick="closeAddContact()">Annuler</button>
+      <button class="btn-save" onclick="saveNewContact()">Enregistrer</button>
     </div>
   </div>
 
-
 </div>
-</div><!-- end tab-codes -->
+</div><!-- end tab-contacts -->
 
 
 <!-- ══ QUICK SEARCH OVERLAY (codes DL from calc) ══ -->
@@ -1051,11 +1013,11 @@ function p2(v){ return String(v).padStart(2,'0'); }
 
 // ── TABS ──────────────────────────────────────────────────────────────
 function switchTab(name) {
-  const tabs=['calc','timecalc','codes','history'];
+  const tabs=['calc','timecalc','contacts','history'];
   document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active', tabs[i]===name));
   document.querySelectorAll('.tab-content').forEach(c=>c.classList.toggle('active', c.id==='tab-'+name));
   if(name==='history') renderHistory();
-  if(name==='codes') searchCodes();
+  if(name==='contacts') renderContacts2();
   window.scrollTo({top:0,behavior:'smooth'});
   currentTab=name;
 }
@@ -1385,12 +1347,25 @@ document.getElementById('vol-num').addEventListener('input',function(){
 
 // ── PRESETS ───────────────────────────────────────────────────────────
 const PRESETS = {
-  ezy: { name:'EasyJet', ttm:30, marge:4, passNorm:3, doorClose:4, volPrefix:'EJU', immatPrefix:'OE-', maxCauses:3 },
-  vly: { name:'Vueling', ttm:40, marge:0, passNorm:4, doorClose:5, volPrefix:'VY', immatPrefix:'EC-', maxCauses:4 },
+  ezy: { name:'EasyJet', ttm:30, marge:4, passNorm:3, doorClose:4, volPrefix:'EJU', immatPrefix:'OE-', maxCauses:3,
+    acTypes:[
+      {code:'319',label:'A319',ttm:30},
+      {code:'320',label:'A320',ttm:30},
+    ]},
+  vly: { name:'Vueling', ttm:40, marge:0, passNorm:4, doorClose:5, volPrefix:'VY', immatPrefix:'EC-', maxCauses:4,
+    acTypes:[
+      {code:'319',label:'A319',ttm:40},
+      {code:'320',label:'A320',ttm:40},
+      {code:'320N',label:'A320N',ttm:45},
+      {code:'321',label:'A321',ttm:45},
+      {code:'321N',label:'A321N',ttm:50},
+    ]},
 };
 let activePreset = null;
+let activeAcType = null;
 let crewChange = false;
 let firstwave = false;
+let lastwave = false;
 
 function autoFillADCT(){
   if(!activePreset) return;
@@ -1404,7 +1379,13 @@ function autoFillADCT(){
 }
 
 function getEffectiveTTM(baseTTM){
-  return crewChange ? baseTTM + 5 : baseTTM;
+  let ttm=baseTTM;
+  if(activeAcType&&activePreset){
+    const acTypes=PRESETS[activePreset].acTypes||[];
+    const ac=acTypes.find(a=>a.code===activeAcType);
+    if(ac) ttm=ac.ttm;
+  }
+  return crewChange ? ttm + 5 : ttm;
 }
 
 function getEffectiveMarge(){
@@ -1429,7 +1410,35 @@ function applyPresetValues(){
   const immatPrefixes=Object.values(PRESETS).map(x=>x.immatPrefix);
   if(!curImmat || immatPrefixes.includes(curImmat)) immatEl.value=p.immatPrefix;
   updateCauseRows(p.maxCauses);
+  renderAcTypeButtons();
   autoFillADCT();
+  calcAll();
+}
+
+// ── AIRCRAFT TYPE SELECTION ──────────────────────────────────────────
+function renderAcTypeButtons(){
+  const bar=document.getElementById('actype-bar');
+  const container=document.getElementById('actype-buttons');
+  if(!activePreset){bar.style.display='none';return;}
+  const acTypes=PRESETS[activePreset].acTypes||[];
+  if(!acTypes.length){bar.style.display='none';return;}
+  bar.style.display='flex';
+  const presetCls=activePreset==='ezy'?'ezy':'vly';
+  container.innerHTML=acTypes.map(ac=>`
+    <button class="preset-btn ${presetCls} ${activeAcType===ac.code?'active':''}" onclick="setAcType('${ac.code}')" style="font-size:12px;padding:6px 12px">
+      ${ac.label}<span style="font-size:9px;opacity:.6;margin-left:4px">${ac.ttm}′</span>
+    </button>
+  `).join('');
+}
+
+function setAcType(code){
+  if(activeAcType===code){ activeAcType=null; }
+  else { activeAcType=code; }
+  if(activePreset){
+    const p=PRESETS[activePreset];
+    document.getElementById('ttm').value=getEffectiveTTM(p.ttm);
+  }
+  renderAcTypeButtons();
   calcAll();
 }
 
@@ -1453,29 +1462,40 @@ function updateCauseRows(max){
 function setPreset(key){
   if(activePreset===key){
     activePreset=null;
+    activeAcType=null;
     document.getElementById('ttm').value='';
     document.getElementById('marge').value='';
     document.getElementById('vol-num').value='';
     document.getElementById('vol-date').value='';
     document.getElementById('vol-immat').value='';
     document.querySelectorAll('.preset-btn.ezy, .preset-btn.vly').forEach(b=>b.classList.remove('active'));
+    document.getElementById('actype-bar').style.display='none';
     applyTheme();
-    // Reset crew & firstwave
+    // Reset crew & firstwave & lastwave
     crewChange=false; document.getElementById('btn-crew').classList.remove('active');
     if(firstwave){ firstwave=false; document.getElementById('panel-arr').classList.remove('disabled'); }
+    if(lastwave){ lastwave=false; document.getElementById('panel-dep').classList.remove('disabled'); }
     document.getElementById('btn-fw').classList.remove('active');
     document.getElementById('btn-fw').style.opacity='0.3';
     document.getElementById('btn-fw').style.pointerEvents='none';
+    document.getElementById('btn-lw').classList.remove('active');
+    document.getElementById('btn-lw').style.opacity='0.3';
+    document.getElementById('btn-lw').style.pointerEvents='none';
     updateCauseRows(4);
+    filterContacts('all');
     calcAll(); return;
   }
   activePreset=key;
+  activeAcType=null;
   document.querySelectorAll('.preset-btn.ezy, .preset-btn.vly').forEach(b=>b.classList.remove('active'));
   document.getElementById('preset-'+key).classList.add('active');
   applyTheme();
-  // Firstwave available for both EZY and VLY
+  filterContacts(key);
+  // First & Last available
   document.getElementById('btn-fw').style.opacity = '1';
   document.getElementById('btn-fw').style.pointerEvents = 'auto';
+  document.getElementById('btn-lw').style.opacity = '1';
+  document.getElementById('btn-lw').style.pointerEvents = 'auto';
   applyPresetValues();
 }
 
@@ -1488,9 +1508,18 @@ function toggleCrew(){
 function toggleFirstwave(){
   if(!activePreset) return;
   firstwave=!firstwave;
+  if(firstwave && lastwave){ lastwave=false; document.getElementById('btn-lw').classList.remove('active'); document.getElementById('panel-dep').classList.remove('disabled'); }
   document.getElementById('btn-fw').classList.toggle('active', firstwave);
-  // Grey out arrival panel when firstwave
   document.getElementById('panel-arr').classList.toggle('disabled', firstwave);
+  applyPresetValues();
+}
+
+function toggleLastwave(){
+  if(!activePreset) return;
+  lastwave=!lastwave;
+  if(lastwave && firstwave){ firstwave=false; document.getElementById('btn-fw').classList.remove('active'); document.getElementById('panel-arr').classList.remove('disabled'); }
+  document.getElementById('btn-lw').classList.toggle('active', lastwave);
+  document.getElementById('panel-dep').classList.toggle('disabled', lastwave);
   applyPresetValues();
 }
 
@@ -1712,7 +1741,6 @@ async function autoSave(){
       adct:document.getElementById('adct').value,
       adc:document.getElementById('adc').value,
       atd:document.getElementById('atd').value,
-      volNotes:document.getElementById('vol-notes').value,
       causes:[]
     };
     document.querySelectorAll('#causes-body tr').forEach(tr=>{
@@ -1759,7 +1787,6 @@ async function restoreCurrent(){
         rows[i].querySelector('.cause-note').value=c.note||'';
       });
     }
-    if(s.volNotes) document.getElementById('vol-notes').value=s.volNotes;
     document.getElementById('sessionInfo').textContent='Données restaurées ✓';
     calcAll();
   } catch(e){ console.warn('Restore parse error:',e); }
@@ -1796,7 +1823,6 @@ async function saveToHistory(){
       adc: document.getElementById('adc').value,
       atd: document.getElementById('atd').value,
       ctot: document.getElementById('ctot').value,
-      volNotes: document.getElementById('vol-notes').value||'',
       dlArr: lastCalc.dlArr,
       dlDep: lastCalc.dlDep,
       rep: lastCalc.rep,
@@ -1952,7 +1978,6 @@ async function loadEntry(id){
     document.getElementById('vol-num').value=e.volNum||'';
     document.getElementById('vol-date').value=e.volDate||'';
     document.getElementById('vol-immat').value=e.volImmat||'';
-    document.getElementById('vol-notes').value=e.volNotes||'';
     document.getElementById('ttm').value=e.ttm||'';
     document.getElementById('marge').value=e.marge||'';
 
@@ -1997,7 +2022,6 @@ function resetAll(){
   document.getElementById('vol-num').value='';
   document.getElementById('vol-date').value=getTodayDDMM();
   document.getElementById('vol-immat').value='';
-  document.getElementById('vol-notes').value='';
   document.getElementById('ttm').value='';
   document.getElementById('marge').value='';
   document.querySelectorAll('.cause-label,.cause-min,.cause-iata,.cause-note').forEach(el=>el.value='');
@@ -2005,13 +2029,20 @@ function resetAll(){
 
   // Reset all presets & toggles
   activePreset=null;
+  activeAcType=null;
   crewChange=false;
   firstwave=false;
+  lastwave=false;
   document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('panel-arr').classList.remove('disabled');
+  document.getElementById('panel-dep').classList.remove('disabled');
   document.getElementById('btn-fw').style.opacity='0.3';
   document.getElementById('btn-fw').style.pointerEvents='none';
+  document.getElementById('btn-lw').style.opacity='0.3';
+  document.getElementById('btn-lw').style.pointerEvents='none';
+  document.getElementById('actype-bar').style.display='none';
   applyTheme();
+  filterContacts('all');
 
   // Hide computed fields & widget
   document.getElementById('field-ptd').style.display='none';
@@ -2068,51 +2099,6 @@ function startChrono(){
   updateLiveWidget();
 }
 
-// ── QUICK CALL CONTACTS ───────────────────────────────────────────────
-const KEY_CONTACTS='dl_contacts';
-let contacts={ezy:{name:'OCC EasyJet',num:''},vly:{name:'OCC Vueling',num:''}};
-
-function loadContacts(){
-  try{const s=localStorage.getItem(KEY_CONTACTS);if(s) contacts=JSON.parse(s);}catch(e){}
-  renderContacts();
-}
-function saveContacts(){
-  try{localStorage.setItem(KEY_CONTACTS,JSON.stringify(contacts));}catch(e){}
-  renderContacts();
-}
-function renderContacts(){
-  ['ezy','vly'].forEach(k=>{
-    const c=contacts[k];
-    const nameEl=document.getElementById('contact-'+k+'-name');
-    if(c.num){
-      nameEl.innerHTML=c.name;
-    } else {
-      nameEl.innerHTML=c.name+'<span class="contact-nonum"> (pas de n°)</span>';
-    }
-  });
-}
-function callContact(k){
-  const c=contacts[k];
-  if(!c.num){editContact(k);return;}
-  window.location.href='tel:'+c.num.replace(/\s/g,'');
-}
-function editContact(k){
-  const c=contacts[k];
-  const newNum=prompt('Numéro '+c.name+' :',c.num);
-  if(newNum===null) return;
-  contacts[k]={name:c.name,num:newNum};
-  saveContacts();
-  showToast('✅ N° enregistré');
-}
-// Long press to edit on mobile
-['ezy','vly'].forEach(k=>{
-  let timer;
-  const btn=document.getElementById('contact-'+k);
-  btn.addEventListener('touchstart',()=>{timer=setTimeout(()=>{editContact(k);timer='done';},600);},{passive:true});
-  btn.addEventListener('touchend',(e)=>{if(timer==='done'){e.preventDefault();}clearTimeout(timer);},{passive:false});
-});
-loadContacts();
-
 // ── IMMAT AUTO-FORMAT (auto-insert dash after 2 chars) ───────────────
 function formatImmat(el){
   let v=el.value.toUpperCase().replace(/[^A-Z0-9-]/g,'');
@@ -2137,117 +2123,8 @@ function applyTheme(){
   document.body.classList.remove('theme-ezy','theme-vly');
   if(activePreset==='ezy') document.body.classList.add('theme-ezy');
   else if(activePreset==='vly') document.body.classList.add('theme-vly');
-  // Highlight active contact, grey out the other
-  const ezyBtn=document.getElementById('contact-ezy');
-  const vlyBtn=document.getElementById('contact-vly');
-  if(activePreset==='ezy'){
-    ezyBtn.style.opacity='1'; ezyBtn.style.filter='none';
-    vlyBtn.style.opacity='0.25'; vlyBtn.style.filter='grayscale(1)';
-  } else if(activePreset==='vly'){
-    vlyBtn.style.opacity='1'; vlyBtn.style.filter='none';
-    ezyBtn.style.opacity='0.25'; ezyBtn.style.filter='grayscale(1)';
-  } else {
-    ezyBtn.style.opacity='1'; ezyBtn.style.filter='none';
-    vlyBtn.style.opacity='1'; vlyBtn.style.filter='none';
-  }
 }
 
-// ── COPY DL SUMMARY (MVT/SI format) ─────────────────────────────────
-function copyDLSummary(){
-  const vol=document.getElementById('vol-num').value||'???';
-  const date=document.getElementById('vol-date').value||'';
-  const sta=document.getElementById('sta').value||'--:--';
-  const ata=document.getElementById('ata').value||'--:--';
-  const std=document.getElementById('std').value||'--:--';
-  const atd=document.getElementById('atd').value||'--:--';
-  const adc=document.getElementById('adc').value||'--:--';
-  const ptdEl=document.getElementById('ptd-display');
-  const ptd=ptdEl?ptdEl.textContent:'--:--';
-
-  const dlArr=lastCalc.dlArr!=null?'+'+lastCalc.dlArr:'0';
-  const dlDep=lastCalc.dlDep!=null?'+'+lastCalc.dlDep:'0';
-  const rep=lastCalc.rep||0;
-  const depass=lastCalc.depass||0;
-
-  let causesText='';
-  document.querySelectorAll('#causes-body tr').forEach(tr=>{
-    const l=tr.querySelector('.cause-label').value;
-    const m=tr.querySelector('.cause-min').value;
-    const c=tr.querySelector('.cause-iata').value;
-    if(l||m) causesText+='\n  DL'+c+' '+l+' '+m+'min';
-  });
-
-  const immat=document.getElementById('vol-immat').value||'';
-
-  const txt=`${vol} ${date}${immat?' '+immat:''}
-STA ${sta} ATA ${ata} DL ARR ${dlArr}min
-STD ${std} PTD ${ptd} ATD ${atd} DL DEP ${dlDep}min
-ADC ${adc}
-REP ${rep}min DEPASS ${depass}min${causesText?'\nCAUSES:'+causesText:''}`;
-
-  navigator.clipboard.writeText(txt).then(()=>{
-    showToast('📋 DL copié dans le presse-papiers');
-  }).catch(()=>{
-    // Fallback for mobile
-    const ta=document.createElement('textarea');ta.value=txt;
-    document.body.appendChild(ta);ta.select();document.execCommand('copy');
-    document.body.removeChild(ta);
-    showToast('📋 DL copié');
-  });
-}
-
-// ── SHARE VIA WHATSAPP ────────────────────────────────────────────────
-function shareDLWhatsApp(){
-  const vol=document.getElementById('vol-num').value||'???';
-  const date=document.getElementById('vol-date').value||'';
-  const immat=document.getElementById('vol-immat').value||'';
-  const sta=document.getElementById('sta').value||'--:--';
-  const ata=document.getElementById('ata').value||'--:--';
-  const std=document.getElementById('std').value||'--:--';
-  const atd=document.getElementById('atd').value||'--:--';
-  const adc=document.getElementById('adc').value||'--:--';
-  const ptdEl=document.getElementById('ptd-display');
-  const ptd=ptdEl?ptdEl.textContent:'--:--';
-  const dlArr=lastCalc.dlArr!=null?'+'+lastCalc.dlArr:'0';
-  const dlDep=lastCalc.dlDep!=null?'+'+lastCalc.dlDep:'0';
-  const rep=lastCalc.rep||0;
-  const depass=lastCalc.depass||0;
-  let causesText='';
-  document.querySelectorAll('#causes-body tr').forEach(tr=>{
-    const l=tr.querySelector('.cause-label').value;
-    const m=tr.querySelector('.cause-min').value;
-    const c=tr.querySelector('.cause-iata').value;
-    if(l||m) causesText+='\n  DL'+c+' '+l+' '+m+'min';
-  });
-  const txt=`✈ *${vol}* ${date}${immat?' '+immat:''}
-🛬 STA ${sta} → ATA ${ata} | DL ARR *${dlArr}min*
-🛫 STD ${std} → PTD ${ptd} → ATD ${atd} | DL DEP *${dlDep}min*
-🚪 ADC ${adc}
-📊 REP ${rep}min | DEPASS ${depass}min${causesText?'\n📝 CAUSES:'+causesText:''}`;
-  window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
-}
-
-// ── SAVE & NEXT ROTATION ─────────────────────────────────────────────
-async function saveAndNext(){
-  await saveToHistory();
-  // Keep preset, crew, firstwave — just clear flight data
-  ['sta','ata','ado','adct','adc','atd','ctot'].forEach(id=>{
-    const el=document.getElementById(id);
-    el.value='';el.classList.remove('error','valid');
-  });
-  document.getElementById('vol-num').value=activePreset?PRESETS[activePreset].volPrefix:'';
-  document.getElementById('vol-date').value=getTodayDDMM();
-  document.getElementById('vol-immat').value=activePreset?PRESETS[activePreset].immatPrefix:'';
-  document.getElementById('vol-notes').value='';
-  document.getElementById('std').value='';
-  document.querySelectorAll('.cause-label,.cause-min,.cause-iata,.cause-note').forEach(el=>el.value='');
-  document.getElementById('field-ptd').style.display='none';
-  document.getElementById('field-adct-calc').style.display='none';
-  lastCalc={};
-  calcAll();
-  showToast('✅ Enregistré → Vol suivant');
-  document.getElementById('vol-num').focus();
-}
 
 // ── QUICK SEARCH (codes DL from calc tab) ────────────────────────────
 let qsCauseTarget=null;
@@ -2329,7 +2206,7 @@ function applyQuickCode(code,desc){
 // ── SWIPE BETWEEN TABS ───────────────────────────────────────────────
 let currentTab='calc';
 let touchStartX=0, touchStartY=0;
-const TAB_ORDER=['calc','timecalc','codes','history'];
+const TAB_ORDER=['calc','timecalc','contacts','history'];
 
 document.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;},{passive:true});
 document.addEventListener('touchend',e=>{
@@ -2341,6 +2218,184 @@ document.addEventListener('touchend',e=>{
   else if(dx>0 && idx>0) switchTab(TAB_ORDER[idx-1]);
 },{passive:true});
 
+
+// ── CONTACTS ─────────────────────────────────────────────────────────
+const KEY_CONTACTS_LIST = 'dl_contacts_list';
+let ctFilter='all';
+
+const DEFAULT_CONTACTS = [
+  // PÉTROLIER
+  {id:1,cat:'Pétrolier',company:'SASCA',role:'Régulation',phone:'+33149752434',airlines:['ezy','vly']},
+  {id:2,cat:'Pétrolier',company:'SAP',role:'Régulation',phone:'+33149754815',airlines:['ezy','vly']},
+  // GALERIE — SAMSIC
+  {id:10,cat:'Galerie',company:'SAMSIC',role:'Superviseur',phone:'+33603113398',airlines:['ezy','vly']},
+  {id:11,cat:'Galerie',company:'SAMSIC',role:'Départs ORLY 1B/2 (EZY/AZ/KM)',phone:'+33761154069',airlines:['ezy']},
+  {id:12,cat:'Galerie',company:'SAMSIC',role:'Départs ORLY 1 ABC (VY/IB/CE)',phone:'+33760464879',airlines:['vly']},
+  {id:13,cat:'Galerie',company:'SAMSIC',role:'Arrivées ORLY 1/2/3 (EZY/VY/AZ/CE/IB/KM)',phone:'+33761221186',airlines:['ezy','vly']},
+  {id:16,cat:'Galerie',company:'SAMSIC',role:'Bagages H/F Correspondances 1/2/3',phone:'+33715444800',airlines:['ezy','vly']},
+  // EAU POTABLE / VIDANGE
+  {id:20,cat:'Eau / Vidange',company:'ACNA',role:'Régulation (eau + vidange)',phone:'+33174221600',airlines:['ezy']},
+  {id:21,cat:'Eau / Vidange',company:'ACNA',role:'Régulation (mob)',phone:'+33603807500',airlines:['ezy']},
+  {id:22,cat:'Eau / Vidange',company:'SAMSIC',role:'Eau Potable',phone:'+33761155323',airlines:['vly']},
+  {id:23,cat:'Eau / Vidange',company:'SAMSIC',role:'Vidange toilettes',phone:'+33761154638',airlines:['vly']},
+  // MÉNAGE
+  {id:30,cat:'Ménage',company:'LadyBird',role:'Régulation',phone:'+33174299062',airlines:['ezy','vly']},
+  {id:31,cat:'Ménage',company:'LadyBird',role:'Régulation (mob)',phone:'+33677119364',airlines:['ezy','vly']},
+  {id:32,cat:'Ménage',company:'Aviclean',role:'Régulation',phone:'+33789681647',airlines:['ezy','vly']},
+  // CATERING
+  {id:40,cat:'Catering',company:'Newrest',role:'Régulation',phone:'+33180918162',airlines:['ezy']},
+  {id:41,cat:'Catering',company:'Newrest',role:'Régulation (mob)',phone:'+33630501362',airlines:['ezy']},
+  {id:42,cat:'Catering',company:'ACNA / SERVAIR',role:'Régulation',phone:'+33148625894',airlines:['vly']},
+  {id:43,cat:'Catering',company:'ACNA / SERVAIR',role:'Régulation (mob)',phone:'+33664937707',airlines:['vly']},
+  // HANDLING
+  {id:50,cat:'Handling',company:'ACNA / SERVAIR',role:'Régulation',phone:'+33148648476',airlines:['ezy']},
+  {id:51,cat:'Handling',company:'ACNA / SERVAIR',role:'Régulation (mob)',phone:'+33603807500',airlines:['ezy']},
+  {id:52,cat:'Handling',company:'ACNA / SERVAIR',role:'Régulation VY',phone:'+33148625894',airlines:['vly']},
+  {id:53,cat:'Handling',company:'ACNA / SERVAIR',role:'Régulation VY (mob)',phone:'+33664937707',airlines:['vly']},
+];
+
+async function getContacts(){
+  try{const r=localStorage.getItem(KEY_CONTACTS_LIST);if(r) return JSON.parse(r);}catch(e){}
+  return DEFAULT_CONTACTS;
+}
+async function saveContactsList(list){
+  try{localStorage.setItem(KEY_CONTACTS_LIST,JSON.stringify(list));}catch(e){}
+}
+
+function fmtPhone(p){
+  // Format for display: +33 X XX XX XX XX
+  let s=p.replace(/[^\d+]/g,'');
+  if(s.startsWith('+33')&&s.length===12){
+    return '+33 '+s[3]+' '+s.slice(4,6)+' '+s.slice(6,8)+' '+s.slice(8,10)+' '+s.slice(10,12);
+  }
+  return p;
+}
+
+function filterContacts(f){
+  ctFilter=f;
+  document.querySelectorAll('[id^="ct-filter-"]').forEach(b=>b.classList.remove('active'));
+  const btn=document.getElementById('ct-filter-'+f);
+  if(btn) btn.classList.add('active');
+  if(document.getElementById('contacts-list')) renderContacts2();
+}
+
+async function renderContacts2(){
+  const list=await getContacts();
+  const container=document.getElementById('contacts-list');
+
+  let filtered=list;
+  if(ctFilter!=='all') filtered=list.filter(c=>c.airlines.includes(ctFilter));
+
+  // Group by category
+  const groups={};
+  filtered.forEach(c=>{
+    if(!groups[c.cat]) groups[c.cat]=[];
+    groups[c.cat].push(c);
+  });
+
+  if(!filtered.length){
+    container.innerHTML='<div style="text-align:center;padding:40px;font-family:var(--mono);font-size:12px;color:var(--text-dim)">Aucun contact</div>';
+    return;
+  }
+
+  container.innerHTML=Object.entries(groups).map(([cat,items])=>`
+    <div style="margin-bottom:16px">
+      <div style="font-family:var(--cond);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--bg2);margin-bottom:6px;padding:8px 14px;background:var(--accent);border-radius:var(--radius-sm)">${cat}</div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        ${items.map(c=>{
+          const tags=c.airlines.map(a=>`<span style="font-family:var(--mono);font-size:8px;font-weight:700;padding:1px 5px;border-radius:2px;${a==='ezy'?'background:rgba(234,88,12,.1);color:#ea580c':'background:rgba(202,138,4,.08);color:#ca8a04'}">${a.toUpperCase()}</span>`).join(' ');
+          return `<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);-webkit-tap-highlight-color:transparent">
+            <div style="font-size:18px;flex-shrink:0;cursor:pointer" onclick="window.location.href='tel:${c.phone.replace(/\s/g,'')}'">📞</div>
+            <div style="flex:1;min-width:0;cursor:pointer" onclick="window.location.href='tel:${c.phone.replace(/\s/g,'')}'">
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent)">${c.company}</span>
+                ${tags}
+              </div>
+              <div style="font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-top:2px">${c.role}</div>
+              <div style="font-family:var(--mono);font-size:13px;color:var(--text-bright);margin-top:2px;letter-spacing:.5px">${fmtPhone(c.phone)}</div>
+            </div>
+            <button onclick="editContact(${c.id})" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px;padding:6px" title="Modifier">✏️</button>
+            <button onclick="deleteContact(${c.id})" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px;padding:6px" title="Supprimer">✕</button>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+let editingContactId=null;
+
+function openAddContact(){
+  editingContactId=null;
+  document.getElementById('ct-modal-title').textContent='Ajouter un contact';
+  document.getElementById('ct-new-cat').value='';
+  document.getElementById('ct-new-company').value='';
+  document.getElementById('ct-new-role').value='';
+  document.getElementById('ct-new-phone').value='';
+  document.getElementById('ct-new-ezy').checked=true;
+  document.getElementById('ct-new-vly').checked=false;
+  document.getElementById('ct-modal-overlay').classList.add('open');
+  document.getElementById('ct-modal').classList.add('open');
+  document.getElementById('ct-new-cat').focus();
+}
+
+async function editContact(id){
+  const list=await getContacts();
+  const c=list.find(x=>x.id===id);
+  if(!c) return;
+  editingContactId=id;
+  document.getElementById('ct-modal-title').textContent='Modifier le contact';
+  document.getElementById('ct-new-cat').value=c.cat||'';
+  document.getElementById('ct-new-company').value=c.company||'';
+  document.getElementById('ct-new-role').value=c.role||'';
+  document.getElementById('ct-new-phone').value=c.phone||'';
+  document.getElementById('ct-new-ezy').checked=c.airlines.includes('ezy');
+  document.getElementById('ct-new-vly').checked=c.airlines.includes('vly');
+  document.getElementById('ct-modal-overlay').classList.add('open');
+  document.getElementById('ct-modal').classList.add('open');
+  document.getElementById('ct-new-company').focus();
+}
+
+function closeAddContact(){
+  document.getElementById('ct-modal-overlay').classList.remove('open');
+  document.getElementById('ct-modal').classList.remove('open');
+  editingContactId=null;
+}
+
+async function saveNewContact(){
+  const cat=document.getElementById('ct-new-cat').value.trim();
+  const company=document.getElementById('ct-new-company').value.trim();
+  const role=document.getElementById('ct-new-role').value.trim();
+  const phone=document.getElementById('ct-new-phone').value.trim();
+  if(!company||!phone){showToast('Société et téléphone requis');return;}
+  const airlines=[];
+  if(document.getElementById('ct-new-ezy').checked) airlines.push('ezy');
+  if(document.getElementById('ct-new-vly').checked) airlines.push('vly');
+  if(!airlines.length){showToast('Sélectionner au moins une compagnie');return;}
+
+  const list=await getContacts();
+  const entry={id:editingContactId||Date.now(),cat:cat||'Autre',company,role:role||'–',phone,airlines};
+
+  if(editingContactId){
+    const idx=list.findIndex(c=>c.id===editingContactId);
+    if(idx>=0) list[idx]=entry;
+  } else {
+    list.push(entry);
+  }
+
+  await saveContactsList(list);
+  closeAddContact();
+  renderContacts2();
+  showToast(editingContactId?'✅ Contact modifié':'✅ Contact ajouté');
+  editingContactId=null;
+}
+
+async function deleteContact(id){
+  if(!confirm('Supprimer ce contact ?')) return;
+  const list=await getContacts();
+  await saveContactsList(list.filter(c=>c.id!==id));
+  renderContacts2();
+}
 
 // ── TIME CALCULATOR ──────────────────────────────────────────────────
 let tcInput='';      // digits being typed
@@ -2601,9 +2656,11 @@ async function importData(event){
 function getTodayDDMM(){ const d=new Date(); return p2(d.getDate())+'/'+p2(d.getMonth()+1); }
 
 (async()=>{
-  // Firstwave disabled until a preset is selected
+  // First & Last disabled until a preset is selected
   document.getElementById('btn-fw').style.opacity='0.3';
   document.getElementById('btn-fw').style.pointerEvents='none';
+  document.getElementById('btn-lw').style.opacity='0.3';
+  document.getElementById('btn-lw').style.pointerEvents='none';
   await restoreCurrent();
   // Pre-fill date if empty
   if(!document.getElementById('vol-date').value) document.getElementById('vol-date').value=getTodayDDMM();
