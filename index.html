@@ -696,6 +696,7 @@
 <!-- TABS -->
 <div class="tabs" style="max-width:960px;margin:0 auto 0;">
   <button class="tab-btn active" onclick="switchTab('calc')">⚙️ <span class="tab-label">Calcul</span></button>
+  <button class="tab-btn" onclick="switchTab('timeline')">⏱️ <span class="tab-label">Timing</span></button>
   <button class="tab-btn" onclick="switchTab('timecalc')">🕐 <span class="tab-label">Temps</span></button>
   <button class="tab-btn" onclick="switchTab('contacts')">📞 <span class="tab-label">Contacts</span></button>
   <button class="tab-btn" onclick="switchTab('history')">🗄️ <span class="tab-label">Hist.</span></button>
@@ -857,7 +858,46 @@
 </div>
 </div><!-- end tab-calc -->
 
-<!-- ══ TAB: TIME CALCULATOR ══ -->
+<!-- ══ TAB: TIMELINE ══ -->
+<div class="tab-content" id="tab-timeline">
+<div style="max-width:960px;margin:0 auto">
+
+  <!-- Filter buttons -->
+  <div style="display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap">
+    <button class="crew-cat-btn active" id="tl-filter-all" onclick="setTlFilter('all')">All</button>
+    <button class="crew-cat-btn" id="tl-filter-above" onclick="setTlFilter('above')">☝ Above</button>
+    <button class="crew-cat-btn" id="tl-filter-below" onclick="setTlFilter('below')">👇 Below</button>
+    <button class="btn-copy" onclick="addCustomMilestone()" style="margin-left:auto;font-size:9px;padding:4px 10px">＋ Action</button>
+  </div>
+
+  <!-- Above the wing -->
+  <div id="tl-section-above" style="margin-bottom:12px">
+    <div onclick="toggleTlSection('above')" style="font-family:var(--cond);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--bg2);padding:8px 14px;background:var(--accent);border-radius:var(--radius-sm);cursor:pointer;display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      ☝ ABOVE THE WING <span style="margin-left:auto;font-size:10px" id="tl-arrow-above">▼</span>
+    </div>
+    <div id="tl-list-above" style="display:flex;flex-direction:column;gap:3px"></div>
+  </div>
+
+  <!-- Below the wing -->
+  <div id="tl-section-below" style="margin-bottom:12px">
+    <div onclick="toggleTlSection('below')" style="font-family:var(--cond);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--bg2);padding:8px 14px;background:var(--accent2);border-radius:var(--radius-sm);cursor:pointer;display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      👇 BELOW THE WING <span style="margin-left:auto;font-size:10px" id="tl-arrow-below">▼</span>
+    </div>
+    <div id="tl-list-below" style="display:flex;flex-direction:column;gap:3px"></div>
+  </div>
+
+  <!-- DL Suggestions -->
+  <div class="panel" id="tl-dl-panel" style="display:none">
+    <div class="panel-head"><span class="icon">📋</span><span class="title">DL suggérés</span></div>
+    <div class="panel-body" style="padding:8px 10px">
+      <div id="tl-dl-list" style="display:flex;flex-direction:column;gap:4px"></div>
+    </div>
+  </div>
+
+  <div id="timeline-empty" style="text-align:center;padding:16px;font-family:var(--mono);font-size:11px;color:var(--text-dim)">Sélectionnez EZY ou VLY pour voir la timeline</div>
+
+</div>
+</div><!-- end tab-timeline -->
 <div class="tab-content" id="tab-timecalc">
 <div class="tc-wrap">
   <!-- Display -->
@@ -1013,11 +1053,12 @@ function p2(v){ return String(v).padStart(2,'0'); }
 
 // ── TABS ──────────────────────────────────────────────────────────────
 function switchTab(name) {
-  const tabs=['calc','timecalc','contacts','history'];
+  const tabs=['calc','timeline','timecalc','contacts','history'];
   document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active', tabs[i]===name));
   document.querySelectorAll('.tab-content').forEach(c=>c.classList.toggle('active', c.id==='tab-'+name));
   if(name==='history') renderHistory();
   if(name==='contacts') renderContacts2();
+  if(name==='timeline') renderTimeline();
   window.scrollTo({top:0,behavior:'smooth'});
   currentTab=name;
 }
@@ -1721,6 +1762,7 @@ function calcAll(){
     if(ata===null && chronoInterval){clearInterval(chronoInterval);chronoInterval=null;document.getElementById('live-widget').classList.remove('active');}
 
     autoSave();
+    renderTimeline();
   } catch(e){console.warn('Calc error:',e);}
 }
 
@@ -2206,7 +2248,7 @@ function applyQuickCode(code,desc){
 // ── SWIPE BETWEEN TABS ───────────────────────────────────────────────
 let currentTab='calc';
 let touchStartX=0, touchStartY=0;
-const TAB_ORDER=['calc','timecalc','contacts','history'];
+const TAB_ORDER=['calc','timeline','timecalc','contacts','history'];
 
 document.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;},{passive:true});
 document.addEventListener('touchend',e=>{
@@ -2395,6 +2437,271 @@ async function deleteContact(id){
   const list=await getContacts();
   await saveContactsList(list.filter(c=>c.id!==id));
   renderContacts2();
+}
+
+// ── TIMELINE ─────────────────────────────────────────────────────────
+const MILESTONES = {
+  ezy:{
+    arr:[
+      {id:'preflight',name:'Pre-Flight',endOff:-4,ref:'ata',wing:'below',dlCode:'41',dlDesc:'Late pre-flight inspection'},
+      {id:'marshaller',name:'Marshaller',endOff:-5,ref:'ata',wing:'below',dlCode:'34',dlDesc:'Late marshaller positioning'},
+      {id:'cargo-ado',name:'Cargo ADO',endOff:4,ref:'ata',wing:'below',dlCode:'34',dlDesc:'Late cargo door opening'},
+      {id:'disembark',name:'Disembark Pax',startOff:2,endOff:6,ref:'ata',wing:'above',dlCode:'66',dlDesc:'Slow disembarkation'},
+      {id:'offloading',name:'Offloading',startOff:3,endOff:8,ref:'ata',wing:'below',dlCode:'32',dlDesc:'Late offloading'},
+      {id:'bag-del',name:'Bag Delivery',endOff:12,ref:'ata',wing:'below',dlCode:'18',dlDesc:'Late bag delivery'},
+    ],
+    dep:[
+      {id:'checkin',name:'Check-In',startOff:-120,endOff:-40,ref:'std',wing:'above',dlCode:'12',dlDesc:'Late check-in'},
+      {id:'agent-gate',name:'Agent Gate',endOff:-50,ref:'std',wing:'above',dlCode:'87',dlDesc:'Late agent at gate'},
+      {id:'crew-ac',name:'Crew at A/C',endOff:-20,ref:'std',wing:'above',dlCode:'63',dlDesc:'Late crew boarding'},
+      {id:'boarding',name:'Boarding',startOff:-25,endOff:-7,ref:'std',wing:'above',dlCode:'15',dlDesc:'Late boarding'},
+      {id:'bag-ac',name:'Bag at A/C',startOff:-25,endOff:-15,ref:'std',wing:'below',dlCode:'18',dlDesc:'Late bags at aircraft'},
+      {id:'fueling',name:'Fueling',startOff:-20,endOff:-10,ref:'std',wing:'below',dlCode:'36',dlDesc:'Late fuelling'},
+      {id:'loading',name:'Loading',startOff:-15,endOff:-5,ref:'std',wing:'below',dlCode:'32',dlDesc:'Late loading'},
+      {id:'pax-ac',name:'Pax at A/C',startOff:-12,endOff:-5,ref:'std',wing:'above',dlCode:'15',dlDesc:'Late pax at aircraft'},
+      {id:'crew-ok',name:'Crew OK Board',endOff:-10,ref:'std',wing:'above',dlCode:'63',dlDesc:'Late crew OK to board'},
+      {id:'bag-search',name:'Bag Search',startOff:-8,endOff:-4,ref:'std',wing:'below',dlCode:'05',dlDesc:'Bag search / offload'},
+      {id:'pushback',name:'Pushback Rdy',startOff:-7,endOff:-3,ref:'std',wing:'below',dlCode:'34',dlDesc:'Late pushback ready'},
+      {id:'lds',name:'Final LDS',startOff:-6,endOff:-4,ref:'std',wing:'below',dlCode:'31',dlDesc:'Late loadsheet'},
+      {id:'cargo-adc',name:'Cargo ADC',endOff:-4,ref:'std',wing:'below',dlCode:'32',dlDesc:'Late cargo door closure'},
+      {id:'blockout',name:'Block Out',endOff:0,ref:'std',wing:'below',dlCode:'89',dlDesc:'Late block out'},
+    ]
+  },
+  vly:{
+    arr:[
+      {id:'preflight',name:'Pre-Flight',endOff:-4,ref:'ata',wing:'below',dlCode:'41',dlDesc:'Late pre-flight inspection'},
+      {id:'marshaller',name:'Marshaller',endOff:-5,ref:'ata',wing:'below',dlCode:'34',dlDesc:'Late marshaller positioning'},
+      {id:'cargo-ado',name:'Cargo ADO',endOff:4,ref:'ata',wing:'below',dlCode:'34',dlDesc:'Late cargo door opening'},
+      {id:'disembark',name:'Disembark Pax',startOff:2,endOff:7,ref:'ata',wing:'above',dlCode:'66',dlDesc:'Slow disembarkation'},
+      {id:'offloading',name:'Offloading',startOff:4,endOff:10,ref:'ata',wing:'below',dlCode:'32',dlDesc:'Late offloading'},
+      {id:'bag-del',name:'Bag Delivery',endOff:15,ref:'ata',wing:'below',dlCode:'18',dlDesc:'Late bag delivery'},
+    ],
+    dep:[
+      {id:'checkin',name:'Check-In',startOff:-120,endOff:-40,ref:'std',wing:'above',dlCode:'12',dlDesc:'Late check-in'},
+      {id:'agent-gate',name:'Agent Gate',endOff:-60,ref:'std',wing:'above',dlCode:'87',dlDesc:'Late agent at gate'},
+      {id:'crew-ac',name:'Crew at A/C',endOff:-25,ref:'std',wing:'above',dlCode:'63',dlDesc:'Late crew boarding'},
+      {id:'boarding',name:'Boarding',startOff:-45,endOff:-10,ref:'std',wing:'above',dlCode:'15',dlDesc:'Late boarding'},
+      {id:'bag-ac',name:'Bag at A/C',startOff:-35,endOff:-20,ref:'std',wing:'below',dlCode:'18',dlDesc:'Late bags at aircraft'},
+      {id:'fueling',name:'Fueling',startOff:-25,endOff:-15,ref:'std',wing:'below',dlCode:'36',dlDesc:'Late fuelling'},
+      {id:'loading',name:'Loading',startOff:-20,endOff:-5,ref:'std',wing:'below',dlCode:'32',dlDesc:'Late loading'},
+      {id:'pax-ac',name:'Pax at A/C',startOff:-15,endOff:-7,ref:'std',wing:'above',dlCode:'15',dlDesc:'Late pax at aircraft'},
+      {id:'crew-ok',name:'Crew OK Board',endOff:-13,ref:'std',wing:'above',dlCode:'63',dlDesc:'Late crew OK to board'},
+      {id:'bag-search',name:'Bag Search',startOff:-10,endOff:-5,ref:'std',wing:'below',dlCode:'05',dlDesc:'Bag search / offload'},
+      {id:'pushback',name:'Pushback Rdy',startOff:-10,endOff:-3,ref:'std',wing:'below',dlCode:'34',dlDesc:'Late pushback ready'},
+      {id:'lds',name:'Final LDS',startOff:-8,endOff:-5,ref:'std',wing:'below',dlCode:'31',dlDesc:'Late loadsheet'},
+      {id:'cargo-adc',name:'Cargo ADC',endOff:-4,ref:'std',wing:'below',dlCode:'32',dlDesc:'Late cargo door closure'},
+      {id:'blockout',name:'Block Out',endOff:0,ref:'std',wing:'below',dlCode:'89',dlDesc:'Late block out'},
+      {id:'other',name:'Other Service',endOff:15,ref:'std',wing:'below',dlCode:'99',dlDesc:'Other service delay'},
+    ]
+  }
+};
+
+let customMilestones=[];
+let tlRealTimes={};
+let tlAutoOverrides={};
+let tlFilter='all';
+let tlSections={above:true,below:true};
+
+function getTimelineKey(){return 'dl_tl_'+document.getElementById('vol-num').value;}
+
+function saveTlState(){
+  try{
+    const k=getTimelineKey();
+    if(k==='dl_tl_') return;
+    localStorage.setItem(k,JSON.stringify({real:tlRealTimes,auto:tlAutoOverrides,custom:customMilestones}));
+  }catch(e){}
+}
+
+function loadTlState(){
+  try{
+    const k=getTimelineKey();
+    const s=localStorage.getItem(k);
+    if(s){const d=JSON.parse(s);tlRealTimes=d.real||{};tlAutoOverrides=d.auto||{};customMilestones=d.custom||[];}
+    else{tlRealTimes={};tlAutoOverrides={};customMilestones=[];}
+  }catch(e){tlRealTimes={};tlAutoOverrides={};customMilestones=[];}
+}
+
+function scaleOff(off,baseTTM,effTTM){
+  if(Math.abs(off)>60||off===0||off===-4) return off;
+  return Math.round(off*effTTM/baseTTM);
+}
+
+function setTlFilter(f){
+  tlFilter=f;
+  document.querySelectorAll('[id^="tl-filter-"]').forEach(b=>b.classList.remove('active'));
+  const btn=document.getElementById('tl-filter-'+f);
+  if(btn) btn.classList.add('active');
+  if(f==='all'){tlSections.above=true;tlSections.below=true;}
+  else if(f==='above'){tlSections.above=true;tlSections.below=false;}
+  else{tlSections.above=false;tlSections.below=true;}
+  renderTimeline();
+}
+
+function toggleTlSection(sec){
+  tlSections[sec]=!tlSections[sec];
+  renderTimeline();
+}
+
+function buildRows(){
+  if(!activePreset) return [];
+  const ata=parseTime(document.getElementById('ata').value);
+  const std=parseTime(document.getElementById('std').value);
+  const p=PRESETS[activePreset];
+  const baseTTM=p.ttm;
+  const effTTM=parseInt(document.getElementById('ttm').value)||baseTTM;
+  const ms=MILESTONES[activePreset];
+  if(!ms) return [];
+  let rows=[];
+  [...ms.arr,...ms.dep].forEach(m=>{
+    const refVal=m.ref==='ata'?ata:std;
+    let sOff=m.startOff!=null?(m.ref==='std'?scaleOff(m.startOff,baseTTM,effTTM):m.startOff):null;
+    let eOff=m.ref==='std'?scaleOff(m.endOff,baseTTM,effTTM):m.endOff;
+    let autoStart=sOff!=null&&refVal!=null?refVal+sOff:null;
+    let autoEnd=refVal!=null?refVal+eOff:null;
+    if(tlAutoOverrides[m.id+'_s']){const ov=parseTime(tlAutoOverrides[m.id+'_s']);if(ov!=null) autoStart=ov;}
+    if(tlAutoOverrides[m.id+'_e']){const ov=parseTime(tlAutoOverrides[m.id+'_e']);if(ov!=null) autoEnd=ov;}
+    const phase=m.ref==='ata'?'arr':'dep';
+    rows.push({...m,phase,autoStart,autoEnd,sortKey:autoEnd||autoStart||0});
+  });
+  customMilestones.forEach(m=>{
+    rows.push({...m,phase:'custom',wing:m.wing||'below',autoStart:null,autoEnd:null,sortKey:m.sortKey||5000,dlCode:'99',dlDesc:'Custom action'});
+  });
+  rows.sort((a,b)=>a.sortKey-b.sortKey);
+  return rows;
+}
+
+function renderMilestoneCard(m){
+  const realS=tlRealTimes[m.id+'_s']||'';
+  const realE=tlRealTimes[m.id+'_e']||'';
+  const autoSTxt=m.autoStart!=null?fmtTime(m.autoStart):'--:--';
+  const autoETxt=m.autoEnd!=null?fmtTime(m.autoEnd):'--:--';
+  const isCustom=m.phase==='custom';
+  let deltaE='';let deltaECls='';
+  if(realE&&m.autoEnd!=null){
+    const rm=parseTime(realE);
+    if(rm!=null){const d=rm-m.autoEnd;deltaE=(d>0?'+':'')+d;deltaECls=d>0?'color:var(--red)':d<0?'color:var(--accent3)':'color:var(--text-dim)';}
+  }
+  const wingColor=m.wing==='above'?'rgba(59,130,246,.04)':'rgba(245,158,11,.04)';
+  const phaseTag=m.phase==='arr'?'🛬':'🛫';
+  return `<div style="background:${wingColor};border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-family:var(--mono)">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+      <span style="font-size:12px">${phaseTag}</span>
+      <span style="font-size:11px;font-weight:700;color:var(--text);flex:1">${m.name}</span>
+      ${deltaE?`<span style="font-size:11px;font-weight:700;${deltaECls}">${deltaE}m</span>`:''}
+      ${isCustom?`<button onclick="removeCustomMilestone('${m.id}')" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px;padding:0 4px">✕</button>`:''}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+      <div style="background:var(--bg3);border-radius:4px;padding:5px 8px">
+        <div style="font-size:8px;color:var(--text-dim);letter-spacing:1px;margin-bottom:3px">PRÉVU</div>
+        <div style="display:flex;align-items:center;gap:3px">
+          <input type="text" value="${tlAutoOverrides[m.id+'_s']||autoSTxt}" placeholder="--:--" maxlength="5" inputmode="numeric" style="font-size:12px !important;padding:2px 3px !important;min-height:24px;text-align:center;width:100%;border-radius:3px;flex:1;background:var(--bg2);border:1px dashed var(--border)" onblur="tlSetAuto('${m.id}_s',this.value)" oninput="tlAutoFmt(this)">
+          <span style="font-size:9px;color:var(--border)">→</span>
+          <input type="text" value="${tlAutoOverrides[m.id+'_e']||autoETxt}" placeholder="--:--" maxlength="5" inputmode="numeric" style="font-size:12px !important;padding:2px 3px !important;min-height:24px;text-align:center;width:100%;border-radius:3px;flex:1;background:var(--bg2);border:1px dashed var(--border)" onblur="tlSetAuto('${m.id}_e',this.value)" oninput="tlAutoFmt(this)">
+        </div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:5px 8px">
+        <div style="font-size:8px;color:var(--accent);letter-spacing:1px;margin-bottom:3px">RÉEL</div>
+        <div style="display:flex;align-items:center;gap:3px">
+          <input type="text" value="${realS}" placeholder="${autoSTxt}" maxlength="5" inputmode="numeric" style="font-size:13px !important;padding:3px 4px !important;min-height:26px;text-align:center;width:100%;border-radius:4px;flex:1" onblur="tlSetReal('${m.id}_s',this.value)" oninput="tlAutoFmt(this)">
+          <span style="font-size:9px;color:var(--border)">→</span>
+          <input type="text" value="${realE}" placeholder="${autoETxt}" maxlength="5" inputmode="numeric" style="font-size:13px !important;padding:3px 4px !important;min-height:26px;text-align:center;width:100%;border-radius:4px;flex:1" onblur="tlSetReal('${m.id}_e',this.value)" oninput="tlAutoFmt(this)">
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderTimeline(){
+  const empty=document.getElementById('timeline-empty');
+  const aboveList=document.getElementById('tl-list-above');
+  const belowList=document.getElementById('tl-list-below');
+  const aboveSection=document.getElementById('tl-section-above');
+  const belowSection=document.getElementById('tl-section-below');
+  if(!empty||!aboveList||!belowList) return;
+  if(!activePreset){
+    empty.style.display='block';
+    aboveSection.style.display='none';belowSection.style.display='none';
+    document.getElementById('tl-dl-panel').style.display='none';
+    return;
+  }
+  empty.style.display='none';
+  loadTlState();
+  const rows=buildRows();
+  const aboveRows=rows.filter(m=>m.wing==='above');
+  const belowRows=rows.filter(m=>m.wing==='below');
+  aboveSection.style.display=(tlFilter==='all'||tlFilter==='above')?'block':'none';
+  belowSection.style.display=(tlFilter==='all'||tlFilter==='below')?'block':'none';
+  document.getElementById('tl-arrow-above').textContent=tlSections.above?'▼':'▶';
+  document.getElementById('tl-arrow-below').textContent=tlSections.below?'▼':'▶';
+  aboveList.style.display=tlSections.above?'flex':'none';
+  belowList.style.display=tlSections.below?'flex':'none';
+  aboveList.innerHTML=aboveRows.map(m=>renderMilestoneCard(m)).join('');
+  belowList.innerHTML=belowRows.map(m=>renderMilestoneCard(m)).join('');
+  renderDLSuggestions(rows);
+}
+
+function renderDLSuggestions(rows){
+  const panel=document.getElementById('tl-dl-panel');
+  const list=document.getElementById('tl-dl-list');
+  const suggestions=[];
+  rows.forEach(m=>{
+    if(!m.dlCode) return;
+    const realE=tlRealTimes[m.id+'_e'];
+    if(!realE||m.autoEnd==null) return;
+    const rm=parseTime(realE);
+    if(rm==null) return;
+    const delta=rm-m.autoEnd;
+    if(delta>0) suggestions.push({code:m.dlCode,name:m.name,desc:m.dlDesc,delta,wing:m.wing});
+  });
+  if(!suggestions.length){panel.style.display='none';return;}
+  panel.style.display='block';
+  list.innerHTML=suggestions.map(s=>{
+    const wingTag=s.wing==='above'?'☝':'👇';
+    return `<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.12);border-radius:var(--radius-sm)">
+      <span style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--red);min-width:36px;text-align:center">${s.code}</span>
+      <div style="flex:1">
+        <div style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text)">${wingTag} ${s.name}</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim)">${s.desc}</div>
+      </div>
+      <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--red)">+${s.delta}m</span>
+    </div>`;
+  }).join('');
+}
+
+function tlSetReal(key,val){
+  const parsed=parseTime(val);
+  if(val.trim()===''||val==='--:--'){delete tlRealTimes[key];}
+  else if(parsed!=null){tlRealTimes[key]=fmtTime(parsed);}
+  else{tlRealTimes[key]=val;}
+  saveTlState();renderTimeline();
+}
+
+function tlSetAuto(key,val){
+  const parsed=parseTime(val);
+  if(val.trim()===''||val==='--:--'){delete tlAutoOverrides[key];}
+  else if(parsed!=null){tlAutoOverrides[key]=fmtTime(parsed);}
+  else{tlAutoOverrides[key]=val;}
+  saveTlState();renderTimeline();
+}
+
+function tlAutoFmt(el){
+  const v=el.value.replace(':','');
+  if(v.length===4&&/^\d{4}$/.test(v)) el.value=v.slice(0,2)+':'+v.slice(2);
+}
+
+function addCustomMilestone(){
+  const name=prompt("Nom de l'action :");
+  if(!name) return;
+  const wing=confirm("Above the wing (passagers) ?\n\nOK = Above\nAnnuler = Below (piste)")?'above':'below';
+  customMilestones.push({id:'cust-'+Date.now(),name,wing,sortKey:4000+customMilestones.length});
+  saveTlState();renderTimeline();
+}
+
+function removeCustomMilestone(id){
+  customMilestones=customMilestones.filter(m=>m.id!==id);
+  delete tlRealTimes[id+'_s'];delete tlRealTimes[id+'_e'];
+  delete tlAutoOverrides[id+'_s'];delete tlAutoOverrides[id+'_e'];
+  saveTlState();renderTimeline();
 }
 
 // ── TIME CALCULATOR ──────────────────────────────────────────────────
