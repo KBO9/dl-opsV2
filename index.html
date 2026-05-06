@@ -714,6 +714,7 @@
     </button>
     <button class="preset-btn fw" id="btn-fw" onclick="toggleFirstwave()" style="font-size:11px;padding:6px 10px">🌅 First</button>
     <button class="preset-btn fw" id="btn-lw" onclick="toggleLastwave()" style="font-size:11px;padding:6px 10px">🌙 Last</button>
+    <button class="btn-reset" onclick="resetAll()" style="margin-left:auto;font-size:10px;padding:6px 12px">↺ Nouveau</button>
   </div>
 
   <!-- PRESET BUTTONS -->
@@ -786,6 +787,7 @@
           <div class="field"><span class="field-sigle">STA</span><input type="text" id="sta" placeholder="--:--" maxlength="5" inputmode="numeric"></div>
           <div class="field"><span class="field-sigle">ATA</span><input type="text" id="ata" placeholder="--:--" maxlength="5" inputmode="numeric"></div>
           <div class="field"><span class="field-sigle">ADO</span><input type="text" id="ado" placeholder="--:--" maxlength="5" inputmode="numeric"></div>
+          <div class="field computed-field" id="field-ttm-prevu" style="display:none"><span class="field-sigle" style="color:var(--accent2)">TTM</span><span class="computed-value" id="ttm-prevu-display">--</span></div>
         </div>
         <!-- Divider -->
         <div style="background:var(--border)"></div>
@@ -811,46 +813,23 @@
         <div class="result-card"><div class="rc-label">RETARD ARRIVÉE</div><div class="rc-value na" id="res-arr">--</div><div class="rc-note" id="note-arr">–</div></div>
         <div class="result-card"><div class="rc-label">PORTE ATTENDUE</div><div class="rc-value na" id="res-porte">--:--</div><div class="rc-note" id="note-porte">PTD – marge</div></div>
         <div class="result-card"><div class="rc-label">RETARD DÉPART</div><div class="rc-value na" id="res-dep">--</div><div class="rc-note" id="note-dep">ATD – STD</div></div>
-        <div class="result-card"><div class="rc-label">DL FERMETURE PORTE</div><div class="rc-value na" id="res-porte-dl">--</div><div class="rc-note" id="note-porte-dl">ADC vs attendue</div></div>
         <div class="result-card"><div class="rc-label">CTOT / SLOT</div><div class="rc-value na" id="res-ctot">--</div><div class="rc-note" id="note-ctot">–</div></div>
-        <div class="result-card"><div class="rc-label">DL PASSERELLE (ADO)</div><div class="rc-value na" id="res-ado">--</div><div class="rc-note" id="note-ado">ATA → ADO, norme ≤ 4 min</div></div>
       </div>
     </div>
   </div>
 
   <!-- DÉCOMPOSITION -->
   <div class="panel decomp-section">
-    <div class="panel-head"><span class="icon">🔍</span><span class="title">Décomposition du retard départ</span></div>
+    <div class="panel-head">
+      <span class="icon">🔍</span><span class="title">Décomposition du retard départ</span>
+      <button class="btn-copy" onclick="openQuickSearch()" style="font-size:9px;padding:4px 10px;margin-left:auto">🔍 Code DL</button>
+    </div>
     <div class="panel-body">
       <div class="decomp-bars">
         <div class="decomp-row"><div class="dr-label">Répercussion avion entrant</div><div class="dr-bar-wrap"><div class="dr-bar rep" id="bar-rep" style="width:0%"></div></div><div class="dr-val" id="val-rep" style="color:#1e3a5f">--</div></div>
         <div class="decomp-row"><div class="dr-label">Dépassement rotation</div><div class="dr-bar-wrap"><div class="dr-bar dep" id="bar-dep2" style="width:0%"></div></div><div class="dr-val" id="val-dep2" style="color:#10b981">--</div></div>
-        <div class="decomp-row"><div class="dr-label">ADO</div><div class="dr-bar-wrap"><div class="dr-bar" id="bar-pax" style="width:0%;background:linear-gradient(90deg,#ec4899,#f472b6)"></div></div><div class="dr-val" id="val-pax" style="color:#ec4899">--</div></div>
         <div class="decomp-row"><div class="dr-label">Clearance (roulage)</div><div class="dr-bar-wrap"><div class="dr-bar" id="bar-clearance" style="width:0%;background:linear-gradient(90deg,#8b5cf6,#a78bfa)"></div></div><div class="dr-val" id="val-clearance" style="color:#8b5cf6">--</div></div>
         <div class="decomp-row"><div class="dr-label">CTOT – Slot</div><div class="dr-bar-wrap"><div class="dr-bar ctot" id="bar-ctot" style="width:0%"></div></div><div class="dr-val" id="val-ctot" style="color:#f59e0b">--</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CAUSES -->
-  <div class="panel causes-panel">
-    <div class="panel-head">
-      <span class="icon">📝</span>
-      <span class="title">Causes du dépassement</span>
-      <button class="btn-copy" onclick="openQuickSearch()" style="font-size:9px;padding:4px 10px;margin-left:6px">🔍 Code DL</button>
-      <div class="remaining-badge" id="remaining-badge" style="margin-left:auto;display:none">
-        <span id="remaining-label"></span>
-      </div>
-    </div>
-    <div class="panel-body">
-      <table class="causes-table">
-        <thead><tr><th>Cause</th><th>Durée (min)</th><th>Code IATA</th><th>Notes</th></tr></thead>
-        <tbody id="causes-body"></tbody>
-      </table>
-      <div class="causes-total">
-        <span class="ct-label">TOTAL CAUSES</span>
-        <span class="ct-val" id="causes-total-val" style="color:var(--text-dim)">--</span>
-        <span class="ct-status" id="causes-status">–</span>
       </div>
     </div>
   </div>
@@ -1318,16 +1297,16 @@ async function deleteCode(id){
   searchCodes();
 }
 
-// ── BUILD CAUSES TABLE ────────────────────────────────────────────────
+// ── BUILD CAUSES TABLE (removed — keeping code DL search only) ───────
 const causesBody = document.getElementById('causes-body');
-for(let i=0;i<4;i++){
+if(causesBody){ for(let i=0;i<4;i++){
   const tr = document.createElement('tr');
   tr.innerHTML=`<td><input type="text" class="cause-label" placeholder="ex: Passerelle" oninput="calcAll()"></td>
     <td><input type="number" class="cause-min" min="0" placeholder="0" oninput="calcAll()"></td>
     <td><input type="text" class="cause-iata" placeholder="93" maxlength="4" oninput="calcAll()"></td>
     <td><input type="text" class="cause-note" placeholder="Notes…" oninput="calcAll()"></td>`;
   causesBody.appendChild(tr);
-}
+}}
 
 // ── TIME UTILS ────────────────────────────────────────────────────────
 function parseTime(raw){
@@ -1490,21 +1469,7 @@ function setAcType(code){
 }
 
 // ── CAUSE ROWS VISIBILITY ────────────────────────────────────────────
-function updateCauseRows(max){
-  const rows=document.querySelectorAll('#causes-body tr');
-  rows.forEach((tr,i)=>{
-    if(i<max){
-      tr.style.display='';
-    } else {
-      tr.style.display='none';
-      // Clear hidden row values so they don't pollute totals
-      tr.querySelector('.cause-label').value='';
-      tr.querySelector('.cause-min').value='';
-      tr.querySelector('.cause-iata').value='';
-      tr.querySelector('.cause-note').value='';
-    }
-  });
-}
+function updateCauseRows(max){}
 
 function setPreset(key){
   if(activePreset===key){
@@ -1600,6 +1565,17 @@ function calcAll(){
     const ttm=parseInt(document.getElementById('ttm').value)||null;
     const marge=parseInt(document.getElementById('marge').value)||null;
 
+    // 0. TTM prévu = STD - STA
+    const ttmPrevuField=document.getElementById('field-ttm-prevu');
+    const ttmPrevuDisplay=document.getElementById('ttm-prevu-display');
+    if(sta!==null&&std!==null){
+      const ttmPrevu=std-sta;
+      ttmPrevuField.style.display='flex';
+      ttmPrevuDisplay.textContent=ttmPrevu+' min';
+    } else {
+      ttmPrevuField.style.display='none';
+    }
+
     // 1. Retard arrivée
     let dlArr=null;
     if(sta!==null&&ata!==null){
@@ -1645,12 +1621,6 @@ function calcAll(){
       setCard('res-porte',fmtTime(porteAttendue),'PTD – '+marge+' min','ok');
     } else setCard('res-porte','--:--','PTD + marge requis','na');
 
-    // 4. DL porte
-    if(adc!==null&&porteAttendue!==null){
-      const dlP=adc-porteAttendue;
-      setCard('res-porte-dl',fmtMin(dlP),dlP<=0?'À l\'heure ✅':'ADC: '+fmtTime(adc),dlP<=0?'ok':'warn');
-    } else setCard('res-porte-dl','--','ADC + marge requis','na');
-
     // 5. Retard départ
     let dlDep=null;
     if(std!==null&&atd!==null){
@@ -1664,35 +1634,22 @@ function calcAll(){
       setCard('res-ctot',fmtMin(dlCtot),dlCtot>0?'Slot actif 🕐 – CTOT: '+fmtTime(ctot):'Pas de contrainte',dlCtot>0?'warn':'ok');
     } else setCard('res-ctot','--','Pas de CTOT saisi','na');
 
-    // 7. DL Passerelle (ADO)
-    const passNorm=getPassNorm();
-    if(ata!==null&&ado!==null){
-      const duree=Math.max(0,ado-ata);
-      const dlAdo=Math.max(0,duree-passNorm);
-      const adoOk=dlAdo===0;
-      setCard('res-ado',dlAdo>0?'+'+dlAdo+' min':'0 min',adoOk?'Dans la norme ✅ ('+duree+' min)':'À justifier – '+duree+' min (norme '+passNorm+' min)',adoOk?'ok':'warn');
-    } else {
-      setCard('res-ado','--','ATA + ADO requis','na');
-    }
+    // 7. (ADO card removed)
 
     // Décomposition
-    let rep=0, dlCtotVal=0, depass=0, clearance=0, dlPax=0;
+    let rep=0, dlCtotVal=0, depass=0, clearance=0;
     let repAbsorbed=false;
 
     if(sta!==null&&ata!==null&&std!==null&&atd!==null){
       const dlArr=Math.max(0,ata-sta);
       if(atd<=std){
-        // Départ à l'heure ou en avance → DL93 absorbé = retard arrivée complet
         rep=dlArr;
         repAbsorbed=true;
       } else {
-        // Départ en retard → DL93 = portion du retard départ causée par l'entrant
-        // Plafonnée au retard départ réel
         const ptdDelay=ptd!==null?Math.max(0,ptd-std):0;
         rep=Math.min(dlDep, ptdDelay);
       }
     } else if(ptd!==null&&std!==null){
-      // Fallback sans ATD : ancienne logique
       rep=Math.max(0,ptd-std);
     }
 
@@ -1701,66 +1658,24 @@ function calcAll(){
       const ref=ctot!==null?Math.max(ptd,ctot):ptd;
       depass=Math.max(0,atd-ref);
     }
-    // Passerelle DL = durée(ATA→ADO) - norme
-    if(ata!==null&&ado!==null){
-      const dureeAdo=Math.max(0,ado-ata);
-      dlPax=Math.max(0,dureeAdo-getPassNorm());
-      depass=Math.max(0,depass-dlPax);
-    }
     // Clearance = ATD – (ADC + marge)
     if(atd!==null&&adc!==null&&marge!==null&&!repAbsorbed){
       const departAttendu=adc+marge;
       clearance=Math.max(0,atd-departAttendu);
       depass=Math.max(0,depass-clearance);
     }
-    const mx=Math.max(rep,dlCtotVal,dlPax,clearance,depass,1);
+    const mx=Math.max(rep,dlCtotVal,clearance,depass,1);
     document.getElementById('val-rep').textContent=rep>0?(repAbsorbed?'+'+rep+' (abs)':'+'+rep+' min'):'0 min';
     document.getElementById('val-ctot').textContent=dlCtotVal>0?'+'+dlCtotVal+' min':'0 min';
-    document.getElementById('val-pax').textContent=dlPax>0?'+'+dlPax+' min':'0 min';
     document.getElementById('val-clearance').textContent=clearance>0?'+'+clearance+' min':'0 min';
     document.getElementById('val-dep2').textContent=depass>0?'+'+depass+' min':'0 min';
     document.getElementById('bar-rep').style.width=(rep/mx*100)+'%';
     document.getElementById('bar-ctot').style.width=(dlCtotVal/mx*100)+'%';
-    document.getElementById('bar-pax').style.width=(dlPax/mx*100)+'%';
     document.getElementById('bar-clearance').style.width=(clearance/mx*100)+'%';
     document.getElementById('bar-dep2').style.width=(depass/mx*100)+'%';
 
-    // Causes total
-    const depassRef = depass > 0 ? depass : (lastCalc.depass || 0);
-    let totalC=0;
-    document.querySelectorAll('.cause-min').forEach(inp=>{const v=parseFloat(inp.value);if(!isNaN(v)&&v>0)totalC+=v;});
-    const totalEl=document.getElementById('causes-total-val');
-    const statusEl=document.getElementById('causes-status');
-    const badge=document.getElementById('remaining-badge');
-    const badgeLbl=document.getElementById('remaining-label');
-
-    if(totalC>0){
-      totalEl.textContent=totalC+' min';
-      if(depassRef>0){
-        const diff=totalC-depassRef;
-        if(diff===0){
-          totalEl.style.color='var(--accent3)';statusEl.textContent='✅ Équilibré';statusEl.style.color='var(--accent3)';
-          badge.style.display='block'; badge.className='remaining-badge done'; badgeLbl.textContent='✅ Tout justifié';
-        } else if(diff<0){
-          totalEl.style.color='var(--accent2)';statusEl.textContent=Math.abs(diff)+' min manquantes ⚠️';statusEl.style.color='var(--accent2)';
-          badge.style.display='block'; badge.className='remaining-badge pending'; badgeLbl.textContent=Math.abs(diff)+' min à justifier';
-        } else{
-          totalEl.style.color='var(--red)';statusEl.textContent=diff+' min en trop ⚠️';statusEl.style.color='var(--red)';
-          badge.style.display='block'; badge.className='remaining-badge over'; badgeLbl.textContent='+'+diff+' min en trop';
-        }
-      } else{
-        totalEl.style.color='var(--text)';statusEl.textContent='–';statusEl.style.color='var(--text-dim)';
-        badge.style.display='none';
-      }
-    } else{
-      totalEl.textContent='--';totalEl.style.color='var(--text-dim)';statusEl.textContent='–';statusEl.style.color='var(--text-dim)';
-      if(depassRef>0){
-        badge.style.display='block'; badge.className='remaining-badge pending'; badgeLbl.textContent=depassRef+' min à justifier';
-      } else { badge.style.display='none'; }
-    }
-
     // Store calc state
-    lastCalc={dlArr,ptd,dlDep,rep,dlCtotVal,dlPax,clearance,depass};
+    lastCalc={dlArr,ptd,dlDep,rep,dlCtotVal,clearance,depass};
 
     // Start chrono when ATA is entered, stop when ATD is entered
     if(ata!==null && atd===null && !chronoInterval) startChrono();
@@ -1789,16 +1704,12 @@ async function autoSave(){
       adct:document.getElementById('adct').value,
       adc:document.getElementById('adc').value,
       atd:document.getElementById('atd').value,
-      causes:[]
+      preset:activePreset,
+      acType:activeAcType,
+      crewChange:crewChange,
+      firstwave:firstwave,
+      lastwave:lastwave
     };
-    document.querySelectorAll('#causes-body tr').forEach(tr=>{
-      state.causes.push({
-        label:tr.querySelector('.cause-label').value,
-        min:tr.querySelector('.cause-min').value,
-        iata:tr.querySelector('.cause-iata').value,
-        note:tr.querySelector('.cause-note').value,
-      });
-    });
     try{ await window.storage.set(KEY_CURRENT, JSON.stringify(state)); flashSave(); } catch(e){}
   } catch(e){}
 }
@@ -1821,20 +1732,19 @@ async function restoreCurrent(){
     const s=JSON.parse(r.value);
     const ids={'volNum':'vol-num','volDate':'vol-date','volImmat':'vol-immat','ttm':'ttm','marge':'marge','ctot':'ctot',
                 'sta':'sta','ata':'ata','ado':'ado','std':'std','adct':'adct','adc':'adc','atd':'atd'};
+    // Restore presets
+    if(s.preset){
+      setPreset(s.preset);
+      if(s.acType) setAcType(s.acType);
+      if(s.crewChange){ crewChange=true; document.getElementById('btn-crew').classList.add('active'); applyPresetValues(); }
+      if(s.firstwave){ firstwave=true; document.getElementById('btn-fw').classList.add('active'); document.getElementById('panel-arr').classList.add('disabled'); }
+      if(s.lastwave){ lastwave=true; document.getElementById('btn-lw').classList.add('active'); document.getElementById('panel-dep').classList.add('disabled'); }
+    }
+    // Restore field values AFTER preset (so they override preset defaults)
     Object.entries(ids).forEach(([k,id])=>{
       const el=document.getElementById(id);
       if(el&&s[k]) el.value=s[k];
     });
-    if(s.causes){
-      const rows=document.querySelectorAll('#causes-body tr');
-      s.causes.forEach((c,i)=>{
-        if(!rows[i]) return;
-        rows[i].querySelector('.cause-label').value=c.label||'';
-        rows[i].querySelector('.cause-min').value=c.min||'';
-        rows[i].querySelector('.cause-iata').value=c.iata||'';
-        rows[i].querySelector('.cause-note').value=c.note||'';
-      });
-    }
     document.getElementById('sessionInfo').textContent='Données restaurées ✓';
     calcAll();
   } catch(e){ console.warn('Restore parse error:',e); }
@@ -1847,13 +1757,6 @@ async function saveToHistory(){
     try{ const r=await window.storage.get(KEY_HISTORY); if(r&&r.value) history=JSON.parse(r.value); } catch(e){ history=[]; }
 
     const causes=[];
-    document.querySelectorAll('#causes-body tr').forEach(tr=>{
-      const l=tr.querySelector('.cause-label').value;
-      const m=tr.querySelector('.cause-min').value;
-      const i=tr.querySelector('.cause-iata').value;
-      const n=tr.querySelector('.cause-note').value;
-      if(l||m) causes.push({label:l,min:m,iata:i,note:n});
-    });
 
     const entry={
       id: Date.now(),
@@ -2072,8 +1975,6 @@ function resetAll(){
   document.getElementById('vol-immat').value='';
   document.getElementById('ttm').value='';
   document.getElementById('marge').value='';
-  document.querySelectorAll('.cause-label,.cause-min,.cause-iata,.cause-note').forEach(el=>el.value='');
-  updateCauseRows(4);
 
   // Reset all presets & toggles
   activePreset=null;
@@ -2095,6 +1996,7 @@ function resetAll(){
   // Hide computed fields & widget
   document.getElementById('field-ptd').style.display='none';
   document.getElementById('field-adct-calc').style.display='none';
+  document.getElementById('field-ttm-prevu').style.display='none';
   document.getElementById('live-widget').classList.remove('active');
   if(chronoInterval){clearInterval(chronoInterval);chronoInterval=null;}
 
