@@ -1498,7 +1498,7 @@ function setPreset(key){
     calcAll(); return;
   }
   activePreset=key;
-  activeAcType=null;
+  activeAcType='320';
   document.querySelectorAll('.preset-btn.ezy, .preset-btn.vly').forEach(b=>b.classList.remove('active'));
   document.getElementById('preset-'+key).classList.add('active');
   applyTheme();
@@ -1563,7 +1563,8 @@ function calcAll(){
     const adc=parseTime(document.getElementById('adc').value);
     const ctot=parseTime(document.getElementById('ctot').value);
     const ttm=parseInt(document.getElementById('ttm').value)||null;
-    const marge=parseInt(document.getElementById('marge').value)||null;
+    const margeRaw=parseInt(document.getElementById('marge').value);
+    const marge=isNaN(margeRaw)?null:margeRaw;
 
     // 0. TTM prévu = STD - STA
     const ttmPrevuField=document.getElementById('field-ttm-prevu');
@@ -1614,7 +1615,7 @@ function calcAll(){
       adctCalcField.style.display='none';
     }
 
-    // 3. Porte attendue
+    // 3. Porte attendue (PTD - marge)
     let porteAttendue=null;
     if(ptd!==null&&marge!==null){
       porteAttendue=ptd-marge;
@@ -1631,39 +1632,59 @@ function calcAll(){
     // 6. CTOT
     if(ctot!==null&&ptd!==null){
       const dlCtot=Math.max(0,ctot-ptd);
-      setCard('res-ctot',fmtMin(dlCtot),dlCtot>0?'Slot actif 🕐 – CTOT: '+fmtTime(ctot):'Pas de contrainte',dlCtot>0?'warn':'ok');
+      if(atd!==null&&atd<ctot){
+        setCard('res-ctot',fmtMin(dlCtot),'Slot non contraint – CTOT: '+fmtTime(ctot)+' (parti avant)','ok');
+      } else {
+        setCard('res-ctot',fmtMin(dlCtot),dlCtot>0?'Slot actif 🕐 – CTOT: '+fmtTime(ctot):'Pas de contrainte',dlCtot>0?'warn':'ok');
+      }
     } else setCard('res-ctot','--','Pas de CTOT saisi','na');
 
     // 7. (ADO card removed)
 
-    // Décomposition
+    // Décomposition — la somme doit toujours = dlDep
     let rep=0, dlCtotVal=0, depass=0, clearance=0;
     let repAbsorbed=false;
 
-    if(sta!==null&&ata!==null&&std!==null&&atd!==null){
-      const dlArr=Math.max(0,ata-sta);
-      if(atd<=std){
-        rep=dlArr;
-        repAbsorbed=true;
-      } else {
-        const ptdDelay=ptd!==null?Math.max(0,ptd-std):0;
-        rep=Math.min(dlDep, ptdDelay);
+    if(dlDep>0&&sta!==null&&ata!==null&&std!==null&&atd!==null){
+      // 1. REP = portion du retard causée par l'entrant
+      const ptdDelay=ptd!==null?Math.max(0,ptd-std):0;
+      rep=Math.min(dlDep, ptdDelay);
+      let remaining=dlDep-rep;
+
+      // 2. Retard fermeture porte → dépassement à justifier
+      if(adc!==null&&porteAttendue!==null){
+        const doorDelay=Math.max(0,adc-porteAttendue);
+        depass=Math.min(remaining, doorDelay);
+        remaining-=depass;
       }
+
+      // 3. Si CTOT inscrit → reste au slot
+      if(ctot!==null&&remaining>0){
+        if(atd<=ctot){
+          // Parti avant ou au slot → tout au slot
+          dlCtotVal=remaining;
+          remaining=0;
+        } else {
+          // Parti APRÈS le slot → slot + clearance
+          clearance=Math.min(remaining, Math.max(0,atd-ctot));
+          dlCtotVal=remaining-clearance;
+          remaining=0;
+        }
+      }
+      // 4. Si pas de CTOT → reste = clearance (roulage)
+      else if(ctot===null&&remaining>0){
+        clearance=remaining;
+        remaining=0;
+      }
+
+    } else if(atd!==null&&atd<=std&&sta!==null&&ata!==null){
+      // Pas de retard départ mais retard arrivée absorbé
+      rep=Math.max(0,ata-sta);
+      repAbsorbed=true;
     } else if(ptd!==null&&std!==null){
       rep=Math.max(0,ptd-std);
     }
 
-    if(ctot!==null&&ptd!==null) dlCtotVal=Math.max(0,ctot-ptd);
-    if(atd!==null&&ptd!==null&&!repAbsorbed){
-      const ref=ctot!==null?Math.max(ptd,ctot):ptd;
-      depass=Math.max(0,atd-ref);
-    }
-    // Clearance = ATD – (ADC + marge)
-    if(atd!==null&&adc!==null&&marge!==null&&!repAbsorbed){
-      const departAttendu=adc+marge;
-      clearance=Math.max(0,atd-departAttendu);
-      depass=Math.max(0,depass-clearance);
-    }
     const mx=Math.max(rep,dlCtotVal,clearance,depass,1);
     document.getElementById('val-rep').textContent=rep>0?(repAbsorbed?'+'+rep+' (abs)':'+'+rep+' min'):'0 min';
     document.getElementById('val-ctot').textContent=dlCtotVal>0?'+'+dlCtotVal+' min':'0 min';
