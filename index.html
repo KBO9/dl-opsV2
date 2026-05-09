@@ -57,9 +57,12 @@
   /* ── PANELS ── */
   .panel { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; transition:border-color .2s; box-shadow:var(--shadow-sm); }
   .panel:hover { border-color:rgba(30,58,95,.12); }
-  .panel-head { display:flex; align-items:center; gap:8px; padding:10px 16px; border-bottom:1px solid var(--border); background:var(--navy); }
+  .panel-head { display:flex; align-items:center; gap:8px; padding:10px 16px; border-bottom:1px solid var(--border); background:var(--navy); cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .panel-head .icon { font-size:14px; }
   .panel-head .title { font-family:var(--cond); font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#fff; }
+  .panel-head .collapse-arrow { margin-left:auto; font-size:10px; color:rgba(255,255,255,.6); transition:transform .2s; }
+  .panel-head .collapse-arrow.collapsed { transform:rotate(-90deg); }
+  .panel-body.collapsed { display:none !important; }
   .panel-head .actions { margin-left:auto; display:flex; gap:6px; }
   .panel-body { padding:14px 16px; }
 
@@ -736,7 +739,7 @@
 
   <!-- PARAMS -->
   <div class="panel params-panel">
-    <div class="panel-head"><span class="icon">⚙️</span><span class="title">Params</span></div>
+    <div class="panel-head" onclick="togglePanel(this)"><span class="icon">⚙️</span><span class="title">Params</span><span class="collapse-arrow">▼</span></div>
     <div class="panel-body">
       <div class="vol-field">
         <label>N° Vol</label>
@@ -778,7 +781,7 @@
 
   <!-- ARRIVÉE + DÉPART côte à côte -->
   <div class="panel" style="grid-column:1/-1">
-    <div class="panel-head"><span class="icon">✈️</span><span class="title">Horaires</span></div>
+    <div class="panel-head" onclick="togglePanel(this)"><span class="icon">✈️</span><span class="title">Horaires</span><span class="collapse-arrow">▼</span></div>
     <div class="panel-body" style="padding:10px">
       <div style="display:grid;grid-template-columns:1fr 1px 1fr;gap:0">
         <!-- ARR -->
@@ -805,9 +808,17 @@
     </div>
   </div>
 
+  <!-- FRISE ROTATION -->
+  <div class="panel" style="grid-column:1/-1">
+    <div class="panel-head" onclick="togglePanel(this)"><span class="icon">📐</span><span class="title">Rotation</span><span class="collapse-arrow">▼</span></div>
+    <div class="panel-body" style="padding:14px 10px 20px">
+      <div id="rotation-timeline" style="position:relative;height:140px;margin-top:4px"></div>
+    </div>
+  </div>
+
   <!-- RÉSULTATS -->
   <div class="panel results-panel">
-    <div class="panel-head"><span class="icon">📊</span><span class="title">Résultats</span></div>
+    <div class="panel-head" onclick="togglePanel(this)"><span class="icon">📊</span><span class="title">Résultats</span><span class="collapse-arrow">▼</span></div>
     <div class="panel-body">
       <div class="results-grid">
         <div class="result-card"><div class="rc-label">RETARD ARRIVÉE</div><div class="rc-value na" id="res-arr">--</div><div class="rc-note" id="note-arr">–</div></div>
@@ -820,9 +831,10 @@
 
   <!-- DÉCOMPOSITION -->
   <div class="panel decomp-section">
-    <div class="panel-head">
-      <span class="icon">🔍</span><span class="title">Décomposition du retard départ</span>
-      <button class="btn-copy" onclick="openQuickSearch()" style="font-size:9px;padding:4px 10px;margin-left:auto">🔍 Code DL</button>
+    <div class="panel-head" onclick="togglePanel(this)">
+      <span class="icon">🔍</span><span class="title">Décomposition</span>
+      <span class="collapse-arrow" style="margin-left:auto">▼</span>
+      <button class="btn-copy" onclick="event.stopPropagation();openQuickSearch()" style="font-size:9px;padding:4px 10px;margin-left:8px">🔍 Code DL</button>
     </div>
     <div class="panel-body">
       <div class="decomp-bars">
@@ -1571,8 +1583,10 @@ function calcAll(){
     const ttmPrevuDisplay=document.getElementById('ttm-prevu-display');
     if(sta!==null&&std!==null){
       const ttmPrevu=std-sta;
+      const effTTM=parseInt(document.getElementById('ttm').value)||0;
       ttmPrevuField.style.display='flex';
       ttmPrevuDisplay.textContent=ttmPrevu+' min';
+      ttmPrevuDisplay.style.color=ttmPrevu<effTTM?'var(--red)':'var(--accent3)';
     } else {
       ttmPrevuField.style.display='none';
     }
@@ -1705,6 +1719,7 @@ function calcAll(){
 
     autoSave();
     renderTimeline();
+    renderRotationTimeline();
   } catch(e){console.warn('Calc error:',e);}
 }
 
@@ -2368,6 +2383,153 @@ async function deleteContact(id){
   renderContacts2();
 }
 
+// ── COLLAPSIBLE PANELS ────────────────────────────────────────────────
+function togglePanel(headEl){
+  const body=headEl.nextElementSibling;
+  if(!body) return;
+  const arrow=headEl.querySelector('.collapse-arrow');
+  body.classList.toggle('collapsed');
+  if(arrow) arrow.classList.toggle('collapsed');
+}
+
+// ── ROTATION TIMELINE (frise visuelle) ───────────────────────────────
+let rotationInterval=null;
+
+function renderRotationTimeline(){
+  const container=document.getElementById('rotation-timeline');
+  if(!container) return;
+
+  const fields=[
+    {id:'sta',label:'STA',color:'#1e3a5f',type:'planned'},
+    {id:'ata',label:'ATA',color:'#2ecc71',type:'real'},
+    {id:'ado',label:'ADO',color:'#3498db',type:'real'},
+    {id:'std',label:'STD',color:'#1e3a5f',type:'planned'},
+    {id:'adct',label:'ADCT',color:'#e67e22',type:'planned'},
+    {id:'adc',label:'ADC',color:'#e67e22',type:'real'},
+    {id:'atd',label:'ATD',color:'#2ecc71',type:'real'},
+    {id:'ctot',label:'CTOT',color:'#e74c5a',type:'planned'},
+  ];
+  const ptdEl=document.getElementById('ptd-display');
+  const ptdVal=ptdEl?ptdEl.textContent:null;
+  const adctCalcEl=document.getElementById('adct-calc-display');
+  const adctCalcVisible=document.getElementById('field-adct-calc')&&document.getElementById('field-adct-calc').style.display!=='none';
+
+  const points=[];
+  fields.forEach(f=>{
+    const el=document.getElementById(f.id);
+    if(!el) return;
+    // Si ADCT recalculé visible, remplacer l'ADCT manuel
+    if(f.id==='adct'&&adctCalcVisible&&adctCalcEl){
+      const v=parseTime(adctCalcEl.textContent);
+      if(v!==null) points.push({...f,label:'ADCT²',color:'#e74c5a',type:'computed',min:v,time:adctCalcEl.textContent});
+      return;
+    }
+    const v=parseTime(el.value);
+    if(v!==null) points.push({...f,min:v,time:el.value});
+  });
+  if(ptdVal&&ptdVal!=='--:--'){
+    const v=parseTime(ptdVal);
+    if(v!==null) points.push({id:'ptd',label:'PTD',color:'#e67e22',type:'computed',min:v,time:ptdVal});
+  }
+
+  if(points.length<2){
+    container.innerHTML='<div style="text-align:center;font-family:var(--mono);font-size:10px;color:var(--text-dim);padding:20px">Min. 2 horaires pour afficher la frise</div>';
+    return;
+  }
+
+  points.sort((a,b)=>a.min-b.min);
+  const minT=points[0].min-3;
+  const maxT=points[points.length-1].min+3;
+  const range=maxT-minT;
+  const pct=v=>((v-minT)/range*100);
+
+  const now=new Date();
+  const nowMin=now.getHours()*60+now.getMinutes()+now.getSeconds()/60;
+  const nowInRange=nowMin>=minT&&nowMin<=maxT;
+
+  const lastReal=points.filter(p=>p.type==='real').pop();
+  const progressMin=lastReal?lastReal.min:(nowInRange?nowMin:minT);
+
+  let html=`<svg viewBox="0 0 100 40" preserveAspectRatio="none" style="width:100%;height:140px;overflow:visible">`;
+  // Base line
+  html+=`<line x1="${pct(points[0].min)}" y1="20" x2="${pct(points[points.length-1].min)}" y2="20" stroke="#d4dae4" stroke-width="0.6"/>`;
+  // Progress line
+  html+=`<line x1="${pct(points[0].min)}" y1="20" x2="${pct(progressMin)}" y2="20" stroke="#2ecc71" stroke-width="1"/>`;
+
+  // Points
+  points.forEach((p,i)=>{
+    const x=pct(p.min);
+    const isReal=p.type==='real';
+    const r=isReal?1.5:1;
+    const above=i%2===0;
+    const labelY=above?10:29;
+    const timeY=above?6.5:33;
+    const tickY1=above?14:20;
+    const tickY2=above?20:26;
+
+    // Tick line
+    html+=`<line x1="${x}" y1="${tickY1}" x2="${x}" y2="${tickY2}" stroke="${p.color}" stroke-width="0.35"/>`;
+
+    if(isReal){
+      html+=`<circle cx="${x}" cy="20" r="${r}" fill="${p.color}" stroke="white" stroke-width="0.25"/>`;
+    } else {
+      html+=`<circle cx="${x}" cy="20" r="${r}" fill="white" stroke="${p.color}" stroke-width="0.3" stroke-dasharray="0.5 0.3"/>`;
+    }
+    html+=`<text x="${x}" y="${labelY}" text-anchor="middle" font-family="monospace" font-size="2.6" font-weight="700" fill="${p.color}">${p.label}</text>`;
+    html+=`<text x="${x}" y="${timeY}" text-anchor="middle" font-family="monospace" font-size="2.3" fill="${p.color}">${p.time}</text>`;
+  });
+
+  // Now cursor
+  if(nowInRange){
+    const nx=pct(nowMin);
+    // Temps restant avant fermeture porte
+    let doorTime=null;
+    // Priorité: ADCT recalculé > ADCT manuel > PTD-marge
+    if(adctCalcVisible&&adctCalcEl){
+      doorTime=parseTime(adctCalcEl.textContent);
+    }
+    if(doorTime===null){
+      const adctVal=parseTime(document.getElementById('adct').value);
+      if(adctVal!==null) doorTime=adctVal;
+    }
+    if(doorTime===null){
+      const ptdDisplay=document.getElementById('ptd-display');
+      if(ptdDisplay&&ptdDisplay.textContent!=='--:--'){
+        const ptdMin=parseTime(ptdDisplay.textContent);
+        const m=activePreset?PRESETS[activePreset].marge:4;
+        if(ptdMin!==null) doorTime=ptdMin-m;
+      }
+    }
+    const remaining=doorTime!==null?doorTime-nowMin:null;
+    let remainTxt='';
+    if(remaining!==null){
+      const nowSec=now.getSeconds();
+      const remainSec=remaining*60-nowSec;
+      const remMinDisplay=Math.ceil(remainSec/60);
+      if(remainSec>0) remainTxt=remMinDisplay+'min';
+      else if(remainSec===0) remainTxt='NOW!';
+      else remainTxt='+'+Math.abs(Math.floor(remainSec/60))+'!';
+    }
+    const remainVal=remaining!==null?remaining*60-now.getSeconds():null;
+    const remainColor=remainVal!==null&&remainVal<=0?'#e74c5a':(remainVal!==null&&remainVal<=300?'#e67e22':'#2ecc71');
+
+    html+=`<line x1="${nx}" y1="13" x2="${nx}" y2="27" stroke="#e74c5a" stroke-width="0.5"/>`;
+    html+=`<polygon points="${nx-0.8},13 ${nx+0.8},13 ${nx},15" fill="#e74c5a"/>`;
+    html+=`<text x="${nx}" y="11" text-anchor="middle" font-family="monospace" font-size="2" font-weight="700" fill="#e74c5a">NOW</text>`;
+    if(remainVal!==null){
+      html+=`<text x="${nx}" y="7.5" text-anchor="middle" font-family="monospace" font-size="2.4" font-weight="800" fill="${remainColor}">${remainTxt}</text>`;
+    }
+  }
+
+  html+='</svg>';
+  container.innerHTML=html;
+}
+
+function startRotationTimer(){
+  if(rotationInterval) clearInterval(rotationInterval);
+  rotationInterval=setInterval(renderRotationTimeline,1000);
+}
+
 // ── TIMELINE ─────────────────────────────────────────────────────────
 const MILESTONES = {
   ezy:{
@@ -2429,7 +2591,7 @@ let customMilestones=[];
 let tlRealTimes={};
 let tlAutoOverrides={};
 let tlFilter='all';
-let tlSections={above:true,below:true};
+let tlSections={above:false,below:false};
 
 function getTimelineKey(){return 'dl_tl_'+document.getElementById('vol-num').value;}
 
@@ -2903,6 +3065,7 @@ function getTodayDDMM(){ const d=new Date(); return p2(d.getDate())+'/'+p2(d.get
   const now=new Date();
   document.getElementById('sessionInfo').textContent=
     p2(now.getHours())+':'+p2(now.getMinutes());
+  startRotationTimer();
 })();
 </script>
 </body>
