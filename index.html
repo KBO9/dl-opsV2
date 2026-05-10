@@ -62,7 +62,9 @@
   .panel-head .title { font-family:var(--cond); font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#fff; }
   .panel-head .collapse-arrow { margin-left:auto; font-size:10px; color:rgba(255,255,255,.6); transition:transform .2s; }
   .panel-head .collapse-arrow.collapsed { transform:rotate(-90deg); }
-  .panel-body.collapsed { display:none !important; }
+  .panel-body.collapsed, div.collapsed:not(.collapse-arrow) { display:none !important; }
+  .collapse-arrow { transition:transform .2s; }
+  .collapse-arrow.collapsed { transform:rotate(-90deg); }
   .panel-head .actions { margin-left:auto; display:flex; gap:6px; }
   .panel-body { padding:14px 16px; }
 
@@ -1409,7 +1411,7 @@ function autoFillADCT(){
   if(!activePreset) return;
   const std=parseTime(document.getElementById('std').value);
   if(std===null) return;
-  const dc=PRESETS[activePreset].doorClose;
+  const dc=firstwave&&activePreset==='ezy'?8:PRESETS[activePreset].doorClose;
   const adctEl=document.getElementById('adct');
   adctEl.value=fmtTime(std-dc);
   adctEl.classList.remove('error');
@@ -1535,6 +1537,11 @@ function toggleFirstwave(){
   if(firstwave && lastwave){ lastwave=false; document.getElementById('btn-lw').classList.remove('active'); document.getElementById('panel-dep').classList.remove('disabled'); }
   document.getElementById('btn-fw').classList.toggle('active', firstwave);
   document.getElementById('panel-arr').classList.toggle('disabled', firstwave);
+  if(firstwave){
+    ['sta','ata','ado'].forEach(id=>{document.getElementById(id).value='';});
+    document.getElementById('field-ptd').style.display='none';
+    document.getElementById('field-ttm-prevu').style.display='none';
+  }
   applyPresetValues();
 }
 
@@ -1544,6 +1551,12 @@ function toggleLastwave(){
   if(lastwave && firstwave){ firstwave=false; document.getElementById('btn-fw').classList.remove('active'); document.getElementById('panel-arr').classList.remove('disabled'); }
   document.getElementById('btn-lw').classList.toggle('active', lastwave);
   document.getElementById('panel-dep').classList.toggle('disabled', lastwave);
+  if(lastwave){
+    ['std','adct','adc','atd'].forEach(id=>{document.getElementById(id).value='';});
+    document.getElementById('ctot') && (document.getElementById('ctot').value='');
+    document.getElementById('field-ptd').style.display='none';
+    document.getElementById('field-adct-calc').style.display='none';
+  }
   applyPresetValues();
 }
 
@@ -2284,10 +2297,13 @@ async function renderContacts2(){
     return;
   }
 
-  container.innerHTML=Object.entries(groups).map(([cat,items])=>`
-    <div style="margin-bottom:16px">
-      <div style="font-family:var(--cond);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--bg2);margin-bottom:6px;padding:8px 14px;background:var(--accent);border-radius:var(--radius-sm)">${cat}</div>
-      <div style="display:flex;flex-direction:column;gap:4px">
+  container.innerHTML=Object.entries(groups).map(([cat,items],idx)=>{
+    const catId='ct-cat-'+idx;
+    return `<div style="margin-bottom:12px">
+      <div onclick="document.getElementById('${catId}').classList.toggle('collapsed');this.querySelector('.collapse-arrow').classList.toggle('collapsed')" style="font-family:var(--cond);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--bg2);padding:8px 14px;background:var(--accent);border-radius:var(--radius-sm);cursor:pointer;display:flex;align-items:center">
+        ${cat}<span class="collapse-arrow collapsed" style="margin-left:auto;font-size:10px;color:rgba(255,255,255,.6)">▼</span>
+      </div>
+      <div id="${catId}" class="collapsed" style="display:flex;flex-direction:column;gap:4px;margin-top:6px">
         ${items.map(c=>{
           const tags=c.airlines.map(a=>`<span style="font-family:var(--mono);font-size:8px;font-weight:700;padding:1px 5px;border-radius:2px;${a==='ezy'?'background:rgba(234,88,12,.1);color:#ea580c':'background:rgba(202,138,4,.08);color:#ca8a04'}">${a.toUpperCase()}</span>`).join(' ');
           return `<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);-webkit-tap-highlight-color:transparent">
@@ -2305,8 +2321,8 @@ async function renderContacts2(){
           </div>`;
         }).join('')}
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 let editingContactId=null;
@@ -2414,10 +2430,17 @@ function renderRotationTimeline(){
   const adctCalcEl=document.getElementById('adct-calc-display');
   const adctCalcVisible=document.getElementById('field-adct-calc')&&document.getElementById('field-adct-calc').style.display!=='none';
 
+  const arrFields=['sta','ata','ado'];
+  const depFields=['std','adct','adc','atd','ctot'];
+
   const points=[];
   fields.forEach(f=>{
     const el=document.getElementById(f.id);
     if(!el) return;
+    // Firstwave: pas d'arrivée
+    if(firstwave && arrFields.includes(f.id)) return;
+    // Lastwave: pas de départ
+    if(lastwave && depFields.includes(f.id)) return;
     // Si ADCT recalculé visible, remplacer l'ADCT manuel
     if(f.id==='adct'&&adctCalcVisible&&adctCalcEl){
       const v=parseTime(adctCalcEl.textContent);
@@ -2427,7 +2450,7 @@ function renderRotationTimeline(){
     const v=parseTime(el.value);
     if(v!==null) points.push({...f,min:v,time:el.value});
   });
-  if(ptdVal&&ptdVal!=='--:--'){
+  if(!firstwave && !lastwave && ptdVal&&ptdVal!=='--:--'){
     const v=parseTime(ptdVal);
     if(v!==null) points.push({id:'ptd',label:'PTD',color:'#e67e22',type:'computed',min:v,time:ptdVal});
   }
@@ -2438,14 +2461,19 @@ function renderRotationTimeline(){
   }
 
   points.sort((a,b)=>a.min-b.min);
-  const minT=points[0].min-3;
-  const maxT=points[points.length-1].min+3;
-  const range=maxT-minT;
-  const pct=v=>((v-minT)/range*100);
-
   const now=new Date();
   const nowMin=now.getHours()*60+now.getMinutes()+now.getSeconds()/60;
-  const nowInRange=nowMin>=minT&&nowMin<=maxT;
+  // Extend range to include NOW if within 90 min of any point
+  const nearPoint=points.some(p=>Math.abs(p.min-nowMin)<=90);
+  let minT=points[0].min-3;
+  let maxT=points[points.length-1].min+3;
+  if(nearPoint){
+    minT=Math.min(minT, nowMin-2);
+    maxT=Math.max(maxT, nowMin+2);
+  }
+  const range=maxT-minT;
+  const pct=v=>((v-minT)/range*100);
+  const nowInRange=nearPoint;
 
   const lastReal=points.filter(p=>p.type==='real').pop();
   const progressMin=lastReal?lastReal.min:(nowInRange?nowMin:minT);
@@ -2482,22 +2510,23 @@ function renderRotationTimeline(){
   // Now cursor
   if(nowInRange){
     const nx=pct(nowMin);
-    // Temps restant avant fermeture porte
+    // Temps restant avant fermeture porte (pas en lastwave)
     let doorTime=null;
-    // Priorité: ADCT recalculé > ADCT manuel > PTD-marge
-    if(adctCalcVisible&&adctCalcEl){
-      doorTime=parseTime(adctCalcEl.textContent);
-    }
-    if(doorTime===null){
-      const adctVal=parseTime(document.getElementById('adct').value);
-      if(adctVal!==null) doorTime=adctVal;
-    }
-    if(doorTime===null){
-      const ptdDisplay=document.getElementById('ptd-display');
-      if(ptdDisplay&&ptdDisplay.textContent!=='--:--'){
-        const ptdMin=parseTime(ptdDisplay.textContent);
-        const m=activePreset?PRESETS[activePreset].marge:4;
-        if(ptdMin!==null) doorTime=ptdMin-m;
+    if(!lastwave){
+      if(adctCalcVisible&&adctCalcEl){
+        doorTime=parseTime(adctCalcEl.textContent);
+      }
+      if(doorTime===null){
+        const adctVal=parseTime(document.getElementById('adct').value);
+        if(adctVal!==null) doorTime=adctVal;
+      }
+      if(doorTime===null){
+        const ptdDisplay=document.getElementById('ptd-display');
+        if(ptdDisplay&&ptdDisplay.textContent!=='--:--'){
+          const ptdMin=parseTime(ptdDisplay.textContent);
+          const m=typeof getEffectiveMarge==='function'?getEffectiveMarge():(activePreset?PRESETS[activePreset].marge:4);
+          if(ptdMin!==null) doorTime=ptdMin-m;
+        }
       }
     }
     const remaining=doorTime!==null?doorTime-nowMin:null;
@@ -2643,7 +2672,10 @@ function buildRows(){
   const ms=MILESTONES[activePreset];
   if(!ms) return [];
   let rows=[];
-  [...ms.arr,...ms.dep].forEach(m=>{
+  // Firstwave: pas d'arrivée. Lastwave: pas de départ.
+  const arrMilestones=firstwave?[]:ms.arr;
+  const depMilestones=lastwave?[]:ms.dep;
+  [...arrMilestones,...depMilestones].forEach(m=>{
     const refVal=m.ref==='ata'?ata:std;
     let sOff=m.startOff!=null?(m.ref==='std'?scaleOff(m.startOff,baseTTM,effTTM):m.startOff):null;
     let eOff=m.ref==='std'?scaleOff(m.endOff,baseTTM,effTTM):m.endOff;
