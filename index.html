@@ -814,7 +814,7 @@
   <div class="panel" style="grid-column:1/-1">
     <div class="panel-head" onclick="togglePanel(this)"><span class="icon">📐</span><span class="title">Rotation</span><span class="collapse-arrow">▼</span></div>
     <div class="panel-body" style="padding:14px 10px 20px">
-      <div id="rotation-timeline" style="position:relative;height:140px;margin-top:4px"></div>
+      <div id="rotation-timeline" style="position:relative;height:160px;margin-top:4px"></div>
     </div>
   </div>
 
@@ -2450,7 +2450,9 @@ function renderRotationTimeline(){
     const v=parseTime(el.value);
     if(v!==null) points.push({...f,min:v,time:el.value});
   });
-  if(!firstwave && !lastwave && ptdVal&&ptdVal!=='--:--'){
+  const ptdField=document.getElementById('field-ptd');
+  const ptdVisible=ptdField&&ptdField.style.display!=='none';
+  if(!firstwave && !lastwave && ptdVisible && ptdVal&&ptdVal!=='--:--'){
     const v=parseTime(ptdVal);
     if(v!==null) points.push({id:'ptd',label:'PTD',color:'#e67e22',type:'computed',min:v,time:ptdVal});
   }
@@ -2478,7 +2480,7 @@ function renderRotationTimeline(){
   const lastReal=points.filter(p=>p.type==='real').pop();
   const progressMin=lastReal?lastReal.min:(nowInRange?nowMin:minT);
 
-  let html=`<svg viewBox="0 0 100 40" preserveAspectRatio="none" style="width:100%;height:140px;overflow:visible">`;
+  let html=`<svg viewBox="0 0 100 44" preserveAspectRatio="none" style="width:100%;height:160px;overflow:visible">`;
   // Base line
   html+=`<line x1="${pct(points[0].min)}" y1="20" x2="${pct(points[points.length-1].min)}" y2="20" stroke="#d4dae4" stroke-width="0.6"/>`;
   // Progress line
@@ -2507,8 +2509,9 @@ function renderRotationTimeline(){
     html+=`<text x="${x}" y="${timeY}" text-anchor="middle" font-family="monospace" font-size="2.3" fill="${p.color}">${p.time}</text>`;
   });
 
-  // Now cursor
-  if(nowInRange){
+  // Now cursor — masqué si ATD renseigné (rotation terminée)
+  const atdFilled=parseTime(document.getElementById('atd').value)!==null;
+  if(nowInRange&&!atdFilled){
     const nx=pct(nowMin);
     // Temps restant avant fermeture porte (pas en lastwave)
     let doorTime=null;
@@ -2521,9 +2524,10 @@ function renderRotationTimeline(){
         if(adctVal!==null) doorTime=adctVal;
       }
       if(doorTime===null){
-        const ptdDisplay=document.getElementById('ptd-display');
-        if(ptdDisplay&&ptdDisplay.textContent!=='--:--'){
-          const ptdMin=parseTime(ptdDisplay.textContent);
+        const ptdDisplay2=document.getElementById('ptd-display');
+        const ptdField2=document.getElementById('field-ptd');
+        if(ptdField2&&ptdField2.style.display!=='none'&&ptdDisplay2&&ptdDisplay2.textContent!=='--:--'){
+          const ptdMin=parseTime(ptdDisplay2.textContent);
           const m=typeof getEffectiveMarge==='function'?getEffectiveMarge():(activePreset?PRESETS[activePreset].marge:4);
           if(ptdMin!==null) doorTime=ptdMin-m;
         }
@@ -2542,11 +2546,29 @@ function renderRotationTimeline(){
     const remainVal=remaining!==null?remaining*60-now.getSeconds():null;
     const remainColor=remainVal!==null&&remainVal<=0?'#e74c5a':(remainVal!==null&&remainVal<=300?'#e67e22':'#2ecc71');
 
+    // Temps restant avant STA (pas en firstwave)
+    const staVal=parseTime(document.getElementById('sta').value);
+    let staTxt='';let staColor='#1e3a5f';
+    if(!firstwave&&staVal!==null){
+      const staRemainSec=(staVal-nowMin)*60-now.getSeconds();
+      if(staRemainSec>0){
+        const staRemMin=Math.ceil(staRemainSec/60);
+        staTxt='STA '+staRemMin+'min';
+        staColor=staRemMin<=5?'#e67e22':'#1e3a5f';
+      } else {
+        staTxt='STA passé';
+        staColor='#2ecc71';
+      }
+    }
+
     html+=`<line x1="${nx}" y1="13" x2="${nx}" y2="27" stroke="#e74c5a" stroke-width="0.5"/>`;
     html+=`<polygon points="${nx-0.8},13 ${nx+0.8},13 ${nx},15" fill="#e74c5a"/>`;
     html+=`<text x="${nx}" y="11" text-anchor="middle" font-family="monospace" font-size="2" font-weight="700" fill="#e74c5a">NOW</text>`;
     if(remainVal!==null){
       html+=`<text x="${nx}" y="7.5" text-anchor="middle" font-family="monospace" font-size="2.4" font-weight="800" fill="${remainColor}">${remainTxt}</text>`;
+    }
+    if(staTxt){
+      html+=`<text x="${nx}" y="31" text-anchor="middle" font-family="monospace" font-size="2" font-weight="700" fill="${staColor}">${staTxt}</text>`;
     }
   }
 
