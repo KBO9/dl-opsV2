@@ -83,18 +83,19 @@
   input[type="text"], input[type="number"] {
     background:var(--input-bg); border:1px solid var(--border); border-radius:var(--radius-sm);
     color:var(--text-bright); font-family:var(--mono); font-size:14px; font-weight:600;
-    padding:5px 6px; width:72px; text-align:center; outline:none; transition:border-color .2s, box-shadow .2s; letter-spacing:1px;
+    padding:5px 6px; width:100%; text-align:center; outline:none; transition:border-color .2s, box-shadow .2s; letter-spacing:1px;
   }
   input[type="text"]:focus, input[type="number"]:focus { border-color:var(--navy); box-shadow:0 0 0 2px rgba(30,58,95,.1); }
   input.error { border-color:var(--red); box-shadow:0 0 0 2px rgba(239,68,68,.1); }
   input.valid { border-color:var(--accent3); }
-  input[type="number"] { width:56px; }
+  input[type="number"] { width:auto; }
   .input-hint { font-family:var(--mono); font-size:8px; color:var(--text-dim); text-align:center; }
-  input.vol-input { width:90px; font-size:12px; text-align:left; padding:4px 6px; }
+  input.vol-input { font-size:12px; text-align:center; padding:4px 6px; }
 
   /* ── FIELD ROWS ── */
   .field { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
   .field:last-child { margin-bottom:0; }
+  .field input { flex:1; }
   .field-sigle { font-family:var(--mono); font-size:11px; font-weight:600; color:var(--navy); width:36px; flex-shrink:0; }
   .field-label { font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:.5px; flex:1; }
 
