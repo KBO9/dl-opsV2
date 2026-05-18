@@ -26,15 +26,15 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     background: var(--bg); color: var(--text); font-family: var(--sans);
-    min-height: 100vh; padding: 16px;
+    min-height: 100vh; padding: 8px;
     -webkit-font-smoothing: antialiased;
   }
 
   /* ── TABS ── */
-  .tabs { display: flex; gap: 4px; margin-bottom: 16px; max-width: 960px; margin-left: auto; margin-right: auto; }
+  .tabs { display: flex; gap: 3px; margin-bottom: 8px; max-width: 960px; margin-left: auto; margin-right: auto; }
   .tab-btn {
-    font-family: var(--cond); font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
-    text-transform: uppercase; padding: 10px 20px; border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    font-family: var(--cond); font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; padding: 7px 10px; border-radius: var(--radius-sm) var(--radius-sm) 0 0;
     border: 1px solid var(--border); border-bottom: none; background: var(--bg2);
     color: var(--text-dim); cursor: pointer; transition: all .2s;
   }
@@ -43,82 +43,82 @@
   .tab-content.active { display: block; }
 
   /* ── HEADER ── */
-  .app-header { text-align: center; margin-bottom: 16px; }
-  .app-header::before { content:''; display:block; width:40px; height:3px; background:var(--navy); margin:0 auto 12px; border-radius:2px; }
-  .app-title { font-family:var(--cond); font-size:24px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--text-bright); }
+  .app-header { text-align: center; margin-bottom: 6px; }
+  .app-header::before { content:''; display:block; width:30px; height:2px; background:var(--navy); margin:0 auto 6px; border-radius:2px; }
+  .app-title { font-family:var(--cond); font-size:18px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--text-bright); }
   .app-title span { color:var(--navy); }
-  .app-subtitle { font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:2px; margin-top:5px; }
-  .ticker { font-family:var(--mono); font-size:10px; color:#fff; text-align:center; margin-bottom:14px; letter-spacing:1px; background:var(--navy); max-width:960px; margin-left:auto; margin-right:auto; padding:8px 16px; border-radius:var(--radius); border:none; box-shadow:var(--shadow-sm); }
+  .app-subtitle { font-family:var(--mono); font-size:9px; color:var(--text-dim); letter-spacing:2px; margin-top:3px; }
+  .ticker { font-family:var(--mono); font-size:9px; color:#fff; text-align:center; margin-bottom:8px; letter-spacing:1px; background:var(--navy); max-width:960px; margin-left:auto; margin-right:auto; padding:5px 10px; border-radius:var(--radius); border:none; box-shadow:var(--shadow-sm); }
   .ticker span { color:#5dade2; }
 
   /* ── GRID ── */
-  .main-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; max-width:960px; margin:0 auto; }
+  .main-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; max-width:960px; margin:0 auto; }
 
   /* ── PANELS ── */
   .panel { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; transition:border-color .2s; box-shadow:var(--shadow-sm); }
   .panel:hover { border-color:rgba(30,58,95,.12); }
-  .panel-head { display:flex; align-items:center; gap:8px; padding:10px 16px; border-bottom:1px solid var(--border); background:var(--navy); cursor:pointer; -webkit-tap-highlight-color:transparent; }
-  .panel-head .icon { font-size:14px; }
-  .panel-head .title { font-family:var(--cond); font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#fff; }
-  .panel-head .collapse-arrow { margin-left:auto; font-size:10px; color:rgba(255,255,255,.6); transition:transform .2s; }
+  .panel-head { display:flex; align-items:center; gap:6px; padding:6px 10px; border-bottom:1px solid var(--border); background:var(--navy); cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .panel-head .icon { font-size:12px; }
+  .panel-head .title { font-family:var(--cond); font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#fff; }
+  .panel-head .collapse-arrow { margin-left:auto; font-size:9px; color:rgba(255,255,255,.6); transition:transform .2s; }
   .panel-head .collapse-arrow.collapsed { transform:rotate(-90deg); }
   .panel-body.collapsed, div.collapsed:not(.collapse-arrow) { display:none !important; }
   .collapse-arrow { transition:transform .2s; }
   .collapse-arrow.collapsed { transform:rotate(-90deg); }
-  .panel-head .actions { margin-left:auto; display:flex; gap:6px; }
-  .panel-body { padding:14px 16px; }
+  .panel-head .actions { margin-left:auto; display:flex; gap:4px; }
+  .panel-body { padding:8px 10px; }
 
   /* ── PARAMS ── */
-  .params-panel { grid-column:1/-1; display:flex; }
-  .params-panel .panel-head { border-bottom:none; border-right:1px solid var(--border); flex:none; }
-  .params-panel .panel-body { flex:1; display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
-  .param-field { display:flex; flex-direction:column; align-items:center; gap:3px; }
-  .param-field label { font-family:var(--cond); font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); }
-  .param-field .param-sigle { font-family:var(--mono); font-size:14px; font-weight:700; color:var(--navy); }
-  .param-divider { width:1px; height:44px; background:var(--border); flex-shrink:0; }
-  .vol-field { display:flex; flex-direction:column; align-items:flex-start; gap:3px; }
-  .vol-field label { font-family:var(--cond); font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); }
+  .params-panel { grid-column:1/-1; }
+  .params-panel .panel-head { border-bottom:1px solid var(--border); }
+  .params-panel .panel-body { padding:6px 8px; }
+  .param-field { display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .param-field label { font-family:var(--cond); font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); }
+  .param-field .param-sigle { font-family:var(--mono); font-size:12px; font-weight:700; color:var(--navy); }
+  .param-divider { width:1px; height:32px; background:var(--border); flex-shrink:0; }
+  .vol-field { display:flex; flex-direction:column; align-items:flex-start; gap:2px; }
+  .vol-field label { font-family:var(--cond); font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); }
 
   /* ── INPUTS ── */
   input[type="text"], input[type="number"] {
     background:var(--input-bg); border:1px solid var(--border); border-radius:var(--radius-sm);
-    color:var(--text-bright); font-family:var(--mono); font-size:15px; font-weight:600;
-    padding:8px 10px; width:88px; text-align:center; outline:none; transition:border-color .2s, box-shadow .2s; letter-spacing:1px;
+    color:var(--text-bright); font-family:var(--mono); font-size:14px; font-weight:600;
+    padding:5px 6px; width:72px; text-align:center; outline:none; transition:border-color .2s, box-shadow .2s; letter-spacing:1px;
   }
-  input[type="text"]:focus, input[type="number"]:focus { border-color:var(--navy); box-shadow:0 0 0 3px rgba(30,58,95,.1); }
-  input.error { border-color:var(--red); box-shadow:0 0 0 3px rgba(239,68,68,.1); }
+  input[type="text"]:focus, input[type="number"]:focus { border-color:var(--navy); box-shadow:0 0 0 2px rgba(30,58,95,.1); }
+  input.error { border-color:var(--red); box-shadow:0 0 0 2px rgba(239,68,68,.1); }
   input.valid { border-color:var(--accent3); }
-  input[type="number"] { width:68px; }
-  .input-hint { font-family:var(--mono); font-size:9px; color:var(--text-dim); text-align:center; }
-  input.vol-input { width:110px; font-size:13px; text-align:left; padding:5px 8px; }
+  input[type="number"] { width:56px; }
+  .input-hint { font-family:var(--mono); font-size:8px; color:var(--text-dim); text-align:center; }
+  input.vol-input { width:90px; font-size:12px; text-align:left; padding:4px 6px; }
 
   /* ── FIELD ROWS ── */
-  .field { display:flex; align-items:center; gap:8px; margin-bottom:9px; }
+  .field { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
   .field:last-child { margin-bottom:0; }
-  .field-sigle { font-family:var(--mono); font-size:12px; font-weight:600; color:var(--navy); width:42px; flex-shrink:0; }
-  .field-label { font-family:var(--mono); font-size:11px; color:var(--text-dim); letter-spacing:.5px; flex:1; }
+  .field-sigle { font-family:var(--mono); font-size:11px; font-weight:600; color:var(--navy); width:36px; flex-shrink:0; }
+  .field-label { font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:.5px; flex:1; }
 
   /* ── RESULTS ── */
   .results-panel { grid-column:1/-1; }
-  .results-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-  .result-card { background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; transition:all .3s; }
+  .results-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+  .result-card { background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius-sm); padding:6px 8px; transition:all .3s; }
   .result-card.highlight { border-color:rgba(30,58,95,.2); box-shadow:var(--shadow-md); }
-  .rc-label { font-family:var(--mono); font-size:9px; color:var(--text-dim); letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; }
-  .rc-value { font-family:var(--mono); font-size:22px; font-weight:700; color:var(--text-bright); line-height:1; transition:color .3s; }
-  .rc-value.ok { color:var(--accent3); } .rc-value.warn { color:var(--accent2); } .rc-value.na { color:var(--text-dim); font-size:16px; }
-  .rc-note { font-size:10px; color:var(--text-dim); margin-top:5px; }
+  .rc-label { font-family:var(--mono); font-size:8px; color:var(--text-dim); letter-spacing:1px; text-transform:uppercase; margin-bottom:2px; }
+  .rc-value { font-family:var(--mono); font-size:16px; font-weight:700; color:var(--text-bright); line-height:1; transition:color .3s; }
+  .rc-value.ok { color:var(--accent3); } .rc-value.warn { color:var(--accent2); } .rc-value.na { color:var(--text-dim); font-size:13px; }
+  .rc-note { font-size:8px; color:var(--text-dim); margin-top:2px; }
 
   /* ── DECOMP ── */
   .decomp-section { grid-column:1/-1; }
   .decomp-bars { display:flex; flex-direction:column; gap:9px; }
-  .decomp-row { display:flex; align-items:center; gap:10px; }
-  .decomp-row .dr-label { font-family:var(--mono); font-size:10px; color:var(--text-dim); width:220px; flex-shrink:0; }
-  .decomp-row .dr-bar-wrap { flex:1; height:20px; background:var(--bg3); border-radius:var(--radius-sm); overflow:hidden; border:1px solid var(--border); }
+  .decomp-row { display:flex; align-items:center; gap:6px; }
+  .decomp-row .dr-label { font-family:var(--mono); font-size:9px; color:var(--text-dim); width:180px; flex-shrink:0; }
+  .decomp-row .dr-bar-wrap { flex:1; height:14px; background:var(--bg3); border-radius:var(--radius-sm); overflow:hidden; border:1px solid var(--border); }
   .decomp-row .dr-bar { height:100%; border-radius:var(--radius-sm); transition:width .6s cubic-bezier(.4,0,.2,1); }
   .dr-bar.rep { background:linear-gradient(90deg,#1e3a5f,#2a6cb0); }
   .dr-bar.ctot { background:linear-gradient(90deg,#f59e0b,#fbbf24); }
   .dr-bar.dep { background:linear-gradient(90deg,#10b981,#34d399); }
-  .decomp-row .dr-val { font-family:var(--mono); font-size:12px; font-weight:700; width:52px; text-align:right; flex-shrink:0; }
+  .decomp-row .dr-val { font-family:var(--mono); font-size:10px; font-weight:700; width:48px; text-align:right; flex-shrink:0; }
 
   /* ── CAUSES ── */
   .causes-panel { grid-column:1/-1; }
@@ -146,8 +146,8 @@
   .btn-save {
     background: var(--navy);
     border: 1px solid var(--navy); color: #fff;
-    font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
-    padding: 8px 18px; border-radius: var(--radius-sm); cursor: pointer; transition: all .2s;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+    padding: 6px 14px; border-radius: var(--radius-sm); cursor: pointer; transition: all .2s;
   }
   .btn-save:hover { background: var(--navy-light); }
   .btn-reset {
@@ -156,7 +156,7 @@
     padding: 8px 14px; border-radius: var(--radius-sm); cursor: pointer; transition: all .2s;
   }
   .btn-reset:hover { border-color: var(--red); color: var(--red); }
-  .btns-row { display:flex; gap:8px; justify-content:flex-end; max-width:960px; margin:12px auto 0; }
+  .btns-row { display:flex; gap:6px; justify-content:flex-end; max-width:960px; margin:8px auto 0; }
 
   .save-flash { font-family:var(--mono); font-size:10px; color:var(--accent3); opacity:0; transition:opacity .3s; }
   .save-flash.show { opacity:1; }
@@ -164,14 +164,14 @@
   /* ── COMPUTED FIELDS (PTD, ADCT recalculée) ── */
   .computed-field { background:rgba(245,158,11,.06); border-radius:var(--radius-sm); padding:6px 10px; border:1px solid rgba(245,158,11,.2); }
   .computed-field.highlight { background:rgba(245,158,11,.1); border-color:rgba(245,158,11,.4); animation:pulse-in .4s ease-out; }
-  .computed-value { font-family:var(--mono); font-size:18px; font-weight:700; color:var(--accent2); letter-spacing:1px; }
+  .computed-value { font-family:var(--mono); font-size:14px; font-weight:700; color:var(--accent2); letter-spacing:1px; }
 
   /* ── FIRSTWAVE: grey out arrival panel ── */
   #panel-arr.disabled, #panel-dep.disabled { opacity:0.3; pointer-events:none; filter:grayscale(1); transition:all .3s; }
   #panel-arr, #panel-dep { transition:all .3s; }
 
   /* ── QUICK CALL CONTACTS ── */
-  .contacts-bar { display:flex; gap:6px; max-width:960px; margin:0 auto 8px; padding:0; align-items:center; }
+  .contacts-bar { display:flex; gap:4px; max-width:960px; margin:0 auto 4px; padding:0; align-items:center; }
   .contact-btn {
     display:flex; align-items:center; gap:6px; padding:8px 14px;
     border-radius:var(--radius-sm); cursor:pointer; transition:all .2s;
@@ -191,9 +191,9 @@
   }
 
   /* ── PRESET BUTTONS ── */
-  .presets-bar { display:flex; align-items:center; gap:6px; max-width:960px; margin:0 auto 12px; flex-wrap:wrap; }
-  .presets-label { font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:2px; text-transform:uppercase; margin-right:2px; white-space:nowrap; }
-  .preset-btn { font-family:var(--mono); font-size:12px; font-weight:700; letter-spacing:1px; padding:8px 16px; border-radius:var(--radius-sm); cursor:pointer; transition:all .2s; border:1px solid var(--border); background:var(--bg2); color:var(--text-dim); white-space:nowrap; box-shadow:var(--shadow-sm); }
+  .presets-bar { display:flex; align-items:center; gap:4px; max-width:960px; margin:0 auto 6px; flex-wrap:wrap; }
+  .presets-label { font-family:var(--mono); font-size:8px; color:var(--text-dim); letter-spacing:2px; text-transform:uppercase; margin-right:2px; white-space:nowrap; }
+  .preset-btn { font-family:var(--mono); font-size:10px; font-weight:700; letter-spacing:1px; padding:5px 10px; border-radius:var(--radius-sm); cursor:pointer; transition:all .2s; border:1px solid var(--border); background:var(--bg2); color:var(--text-dim); white-space:nowrap; box-shadow:var(--shadow-sm); }
   .preset-btn:hover { transform:translateY(-1px); box-shadow:var(--shadow-md); }
   .preset-btn.ezy { border-color:rgba(234,88,12,.3); }
   .preset-btn.ezy:hover, .preset-btn.ezy.active { background:rgba(234,88,12,.08); color:#c2410c; border-color:#ea580c; }
@@ -203,7 +203,7 @@
   .preset-btn.crew:hover, .preset-btn.crew.active { background:rgba(30,58,95,.06); color:var(--navy); border-color:var(--navy); }
   .preset-btn.fw { border-color:rgba(202,138,4,.25); }
   .preset-btn.fw:hover, .preset-btn.fw.active { background:rgba(202,138,4,.06); color:#a16207; border-color:#ca8a04; }
-  .preset-divider { width:1px; height:24px; background:var(--border); flex-shrink:0; }
+  .preset-divider { width:1px; height:18px; background:var(--border); flex-shrink:0; }
   .preset-active { font-family:var(--mono); font-size:10px; color:var(--text-dim); margin-left:4px; }
 
   /* ── HISTORY TAB ── */
@@ -322,8 +322,8 @@
       padding:4px 0; margin-bottom:8px; flex-wrap:nowrap;
     }
     .presets-label { display:none; }
-    .preset-btn { font-size:12px; padding:10px 16px; flex-shrink:0; min-height:42px; }
-    .preset-divider { height:28px; }
+    .preset-btn { font-size:10px; padding:6px 10px; flex-shrink:0; min-height:32px; }
+    .preset-divider { height:20px; }
 
     /* Main grid → single column */
     .main-grid { grid-template-columns:1fr; gap:8px; }
@@ -349,7 +349,7 @@
 
     /* Computed fields (PTD, ADCT) */
     .computed-field { padding:8px 10px; min-height:44px; }
-    .computed-value { font-size:20px; }
+    .computed-value { font-size:14px; }
 
     /* Field rows → more spacing */
     .field { margin-bottom:10px; gap:10px; }
@@ -358,17 +358,17 @@
 
     /* Results grid → 2 cols, bigger cards */
     .results-panel { grid-column:1; }
-    .results-grid { grid-template-columns:1fr 1fr; gap:6px; }
-    .result-card { padding:10px; }
-    .rc-label { font-size:8px; letter-spacing:0.5px; }
-    .rc-value { font-size:20px; }
-    .rc-note { font-size:9px; }
+    .results-grid { grid-template-columns:1fr 1fr; gap:4px; }
+    .result-card { padding:6px 8px; }
+    .rc-label { font-size:7px; letter-spacing:0.5px; }
+    .rc-value { font-size:15px; }
+    .rc-note { font-size:7px; }
 
     /* Decomp bars */
     .decomp-section { grid-column:1; }
-    .decomp-row { gap:8px; }
-    .decomp-row .dr-label { width:100px; font-size:9px; }
-    .dr-val { font-size:11px; width:52px; }
+    .decomp-row { gap:4px; }
+    .decomp-row .dr-label { width:80px; font-size:8px; }
+    .dr-val { font-size:9px; width:44px; }
 
     /* Causes panel */
     .causes-panel { grid-column:1; }
@@ -378,7 +378,7 @@
     .causes-table input[type="number"] { width:60px; font-size:13px !important; padding:8px 6px !important; min-height:40px; }
 
     /* Action buttons → full width, tall */
-    .btns-row { flex-direction:column; gap:8px; margin-top:10px; padding:0 4px; }
+    .btns-row { flex-direction:row; gap:6px; margin-top:6px; padding:0 4px; }
     .btn-save, .btn-reset { font-size:13px; padding:14px 20px; width:100%; text-align:center; min-height:48px; border-radius:var(--radius-sm); }
 
     /* History */
@@ -713,7 +713,7 @@
 
   <!-- QUICK CONTACTS -->
   <div class="contacts-bar">
-    <button onclick="switchTab('contacts')" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:600;min-height:40px;background:var(--navy);border:1px solid var(--navy);color:#fff;-webkit-tap-highlight-color:transparent">
+    <button onclick="switchTab('contacts')" style="display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:600;min-height:30px;background:var(--navy);border:1px solid var(--navy);color:#fff;-webkit-tap-highlight-color:transparent">
       <span style="font-size:16px">📇</span>
       <span>Contacts</span>
     </button>
@@ -742,41 +742,16 @@
   <!-- PARAMS -->
   <div class="panel params-panel">
     <div class="panel-head" onclick="togglePanel(this)"><span class="icon">⚙️</span><span class="title">Params</span><span class="collapse-arrow">▼</span></div>
-    <div class="panel-body">
-      <div class="vol-field">
-        <label>N° Vol</label>
-        <input type="text" id="vol-num" class="vol-input" placeholder="ex: EJU1234" oninput="autoSave()">
+    <div class="panel-body" style="padding:6px 8px">
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:4px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1px;flex:1"><span style="font-family:var(--mono);font-size:8px;color:var(--text-dim)">VOL</span><input type="text" id="vol-num" class="vol-input" placeholder="EJU1234" style="width:100%;text-align:center" oninput="autoSave()"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1px;flex:0.6"><span style="font-family:var(--mono);font-size:8px;color:var(--text-dim)">DATE</span><input type="text" id="vol-date" class="vol-input" placeholder="19/03" style="width:100%;text-align:center" oninput="autoSave()"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1px;flex:1"><span style="font-family:var(--mono);font-size:8px;color:var(--text-dim)">IMMAT</span><div style="display:flex;gap:4px;align-items:center;width:100%"><input type="text" id="vol-immat" class="vol-input" placeholder="OE-IVE" style="flex:1;text-transform:uppercase;text-align:center" maxlength="7" oninput="formatImmat(this);autoSave()"><button class="btn-fr24" id="btn-fr24" onclick="openFR24()" title="FR24" style="font-size:12px;padding:3px 6px">📡</button></div></div>
       </div>
-      <div class="vol-field">
-        <label>Date</label>
-        <input type="text" id="vol-date" class="vol-input" placeholder="ex: 19/03" style="width:80px;" oninput="autoSave()">
-      </div>
-      <div class="vol-field">
-        <label>Immat</label>
-        <div style="display:flex;gap:6px;align-items:center">
-          <input type="text" id="vol-immat" class="vol-input" placeholder="ex: OE-IVE" style="width:100px;text-transform:uppercase" maxlength="7" oninput="formatImmat(this);autoSave()">
-          <button class="btn-fr24" id="btn-fr24" onclick="openFR24()" title="Suivre sur FlightRadar24">📡</button>
-        </div>
-      </div>
-      <div class="param-divider"></div>
-      <div class="param-field">
-        <div class="param-sigle">TTM</div>
-        <label>Rotation (min)</label>
-        <input type="number" id="ttm" min="0" max="180" placeholder="--" oninput="calcAll()">
-      </div>
-      <div class="param-divider"></div>
-      <div class="param-field">
-        <div class="param-sigle">MARGE</div>
-        <label>Porte avant départ</label>
-        <input type="number" id="marge" min="0" max="30" placeholder="--" oninput="calcAll()">
-        <span class="input-hint">minutes</span>
-      </div>
-      <div class="param-divider"></div>
-      <div class="param-field">
-        <div class="param-sigle">CTOT</div>
-        <label>Slot</label>
-        <input type="text" id="ctot" placeholder="--:--" maxlength="5" inputmode="numeric">
-        <span class="input-hint">vide si aucun</span>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1px;flex:1"><span style="font-family:var(--mono);font-size:8px;font-weight:700;color:var(--navy)">TTM</span><input type="number" id="ttm" min="0" max="180" placeholder="--" style="width:100%" oninput="calcAll()"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1px;flex:1"><span style="font-family:var(--mono);font-size:8px;font-weight:700;color:var(--navy)">MARGE</span><input type="number" id="marge" min="0" max="30" placeholder="--" style="width:100%" oninput="calcAll()"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1px;flex:1"><span style="font-family:var(--mono);font-size:8px;font-weight:700;color:var(--navy)">CTOT</span><input type="text" id="ctot" placeholder="--:--" maxlength="5" inputmode="numeric" style="width:100%"></div>
       </div>
     </div>
   </div>
@@ -784,11 +759,11 @@
   <!-- ARRIVÉE + DÉPART côte à côte -->
   <div class="panel" style="grid-column:1/-1">
     <div class="panel-head" onclick="togglePanel(this)"><span class="icon">✈️</span><span class="title">Horaires</span><span class="collapse-arrow">▼</span></div>
-    <div class="panel-body" style="padding:10px">
+    <div class="panel-body" style="padding:6px 8px">
       <div style="display:grid;grid-template-columns:1fr 1px 1fr;gap:0">
         <!-- ARR -->
-        <div id="panel-arr" style="padding-right:12px">
-          <div style="font-family:var(--cond);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--navy);margin-bottom:8px;text-align:center">🛬 ARRIVÉE</div>
+        <div id="panel-arr" style="padding-right:8px">
+          <div style="font-family:var(--cond);font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--navy);margin-bottom:4px;text-align:center">🛬 ARRIVÉE</div>
           <div class="field"><span class="field-sigle">STA</span><input type="text" id="sta" placeholder="--:--" maxlength="5" inputmode="numeric"></div>
           <div class="field"><span class="field-sigle">ATA</span><input type="text" id="ata" placeholder="--:--" maxlength="5" inputmode="numeric"></div>
           <div class="field"><span class="field-sigle">ADO</span><input type="text" id="ado" placeholder="--:--" maxlength="5" inputmode="numeric"></div>
@@ -797,8 +772,8 @@
         <!-- Divider -->
         <div style="background:var(--border)"></div>
         <!-- DEP -->
-        <div id="panel-dep" style="padding-left:12px">
-          <div style="font-family:var(--cond);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--navy);margin-bottom:8px;text-align:center">🛫 DÉPART</div>
+        <div id="panel-dep" style="padding-left:8px">
+          <div style="font-family:var(--cond);font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--navy);margin-bottom:4px;text-align:center">🛫 DÉPART</div>
           <div class="field"><span class="field-sigle">STD</span><input type="text" id="std" placeholder="--:--" maxlength="5" inputmode="numeric"></div>
           <div class="field computed-field" id="field-ptd" style="display:none"><span class="field-sigle" style="color:var(--accent2)">PTD</span><span class="computed-value" id="ptd-display">--:--</span></div>
           <div class="field"><span class="field-sigle">ADCT</span><input type="text" id="adct" placeholder="--:--" maxlength="5" inputmode="numeric"></div>
@@ -813,8 +788,8 @@
   <!-- FRISE ROTATION -->
   <div class="panel" style="grid-column:1/-1">
     <div class="panel-head" onclick="togglePanel(this)"><span class="icon">📐</span><span class="title">Rotation</span><span class="collapse-arrow">▼</span></div>
-    <div class="panel-body" style="padding:14px 10px 20px">
-      <div id="rotation-timeline" style="position:relative;height:160px;margin-top:4px"></div>
+    <div class="panel-body" style="padding:4px 6px 8px">
+      <div id="rotation-timeline" style="position:relative;height:100px;margin-top:2px"></div>
     </div>
   </div>
 
@@ -2480,7 +2455,7 @@ function renderRotationTimeline(){
   const lastReal=points.filter(p=>p.type==='real').pop();
   const progressMin=lastReal?lastReal.min:(nowInRange?nowMin:minT);
 
-  let html=`<svg viewBox="0 0 100 44" preserveAspectRatio="none" style="width:100%;height:160px;overflow:visible">`;
+  let html=`<svg viewBox="0 0 100 36" preserveAspectRatio="none" style="width:100%;height:100px;overflow:visible">`;
   // Base line
   html+=`<line x1="${pct(points[0].min)}" y1="20" x2="${pct(points[points.length-1].min)}" y2="20" stroke="#d4dae4" stroke-width="0.6"/>`;
   // Progress line
